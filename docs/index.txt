@@ -56,6 +56,19 @@ module:
  * It natively does the set things you want a Bloom filter to do.
 
 
+Install
+-------------
+
+Unfortunately at the time I only support systems with a nice build environment
+(Linux, OS X, ..). However, I know people build Cython code on Win32 all the
+time, I just don't want to spend time to get it to work.
+So, to install on a computer with gcc:
+
+ 1. Download and install `Cython <http://www.cython.org/#download>`_.
+ 2. Download `the latest release <http://code.google.com/p/python-bloom-filter/downloads/list>`_.
+ 3. Untar the file
+ 4. Type $ "sudo python setup.py install"
+ 5. Done!
 
 
 Indices and tables
