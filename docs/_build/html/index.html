@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Python BloomFilter’s documentation! &mdash; Python BloomFilter v0.1.5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '0.1.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Python BloomFilter v0.1.5 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">Python BloomFilter v0.1.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-python-bloomfilter-s-documentation">
+<h1>Welcome to Python BloomFilter&#8217;s documentation!<a class="headerlink" href="#welcome-to-python-bloomfilter-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>If you are here, you probably don&#8217;t need to be reminded
+about the nature of a Bloom filter. If you need to learn
+more, just visit the <a class="reference external" href="http://en.wikipedia.org/wiki/Bloom_filter">wikipedia page</a>
+to learn more. This module implements a Bloom filter in python
+that&#8217;s fast and uses mmap files for better scalability.
+Did I mention that it&#8217;s fast?</p>
+<p>Here&#8217;s a quick example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pybloomfilter</span> <span class="kn">import</span> <span class="n">BloomFilter</span>
+
+<span class="n">bf</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="p">(</span><span class="mi">10000000</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s">&#39;filter.bloom&#39;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;/usr/share/dict/words&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">bf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+
+<span class="k">print</span> <span class="s">&#39;apple&#39;</span> <span class="ow">in</span> <span class="n">bf</span>
+<span class="c">#outputs True</span>
+</pre></div>
+</div>
+<p>That wasn&#8217;t so hard, was it? Now, there are a lot of other things
+we can do. For instance, let&#8217;s say we want to create a similar
+filter with just a few pieces of fruit:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fruitbf</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">copy_template</span><span class="p">(</span><span class="s">&quot;fruit.bloom&quot;</span><span class="p">)</span>
+<span class="n">fruitbf</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="s">&quot;apple&quot;</span><span class="p">,</span> <span class="s">&quot;banana&quot;</span><span class="p">,</span> <span class="s">&quot;orange&quot;</span><span class="p">,</span> <span class="s">&quot;pear&quot;</span><span class="p">))</span>
+<span class="k">print</span> <span class="n">fruitbf</span><span class="o">.</span><span class="n">to_base64</span><span class="p">()</span>
+<span class="s">&quot;eJzt2k13ojAUBuA9f8WFyofF5TWChlTHaPzqrlqFCtj6gQi/frqZM2N7aq3Gis59d2ye85KTRbhk&quot;</span>
+<span class="s">&quot;0lyu1NRmsQrgRda0I+wZCfXIaxuWv+jqDxA8vdaf21HIOSn1u6LRE0VL9Z/qghfbBmxZoHsqM3k8&quot;</span>
+<span class="s">&quot;N5XyPAxH2p22TJJoqwU9Q0y0dNDYrOHBIa3BwuznapG+KZZq69JUG0zu1tqI5weJKdpGq7PNJ6tB&quot;</span>
+<span class="s">&quot;GKmzcGWWy8o0FeNNYNZAQpSdJwajt7eRhJ2YM2NOkTnSsBOCGGKIIYbY2TA663GgWWyWfUwn3oIc&quot;</span>
+<span class="s">&quot;fyLYxeQwiF07RqBg9NgHrG5ba3jba5yl4zS2LtEMMcQQQwwxmRiBhPGOJOywIPafYhUwqnTvZOfY&quot;</span>
+<span class="s">&quot;Zu40HH/YxDexZojJwsx6ObDcT7D8vVOtJBxiAhD/AjMmjeF2Wnqd+5RrHdo4azPEzoANabiUhh0b&quot;</span>
+<span class="s">&quot;xBBDDDHEENsf8twlrizswEjDhnTbzWazbGKpQ5k07E9Ox2iFvXBZ2D9B7DawyqLFu5lshhhiiGUK&quot;</span>
+<span class="s">&quot;a4nUloa9yxkwR7XhgPPXYdhRIa77uDtnyvqaIXalGK02ufv3J36GmsnG4lquPnN9gJo1VNxqgYbt&quot;</span>
+<span class="s">&quot;ji/EC8s1PWG5fuVizW4Jox6/3o9XxBBDDLFbwcg9v/AwjrPHtTRsX34O01mxLw37bhCTjJk0+PLK&quot;</span>
+<span class="s">&quot;08HYd4MYYojdKmYnBfjsktEpySY2tGGZzWaIIfYDGB271Yaieaat/AaOkNKb&quot;</span>
+</pre></div>
+</div>
+<div class="section" id="why-pybloomfilter">
+<h2>Why pybloomfilter<a class="headerlink" href="#why-pybloomfilter" title="Permalink to this headline">¶</a></h2>
+<p>As I already mentioned, there are a couple reasons to use this
+module:</p>
+<blockquote>
+<ul class="simple">
+<li>It natively uses <a class="reference external" href="http://en.wikipedia.org/wiki/Mmap">mmaped files</a>.</li>
+<li>It is Fast.</li>
+<li>It natively does the set things you want a Bloom filter to do.</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference external" href="modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference external" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="#">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">Welcome to Python BloomFilter&#8217;s documentation!</a><ul>
+<li><a class="reference external" href="#why-pybloomfilter">Why pybloomfilter</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">Python BloomFilter v0.1.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Michael Axiak.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+#ifndef __BLOOMFILTER_H
+#define __BLOOMFILTER_H 1
+
+#include <stdlib.h>
+#include "mmapbitarray.h"
+
+
+struct _BloomFilter {
+    uint64_t max_num_elem;
+    double error_rate;
+    uint32_t num_hashes;
+    uint32_t hash_seeds[256];
+    /* All of the bit data is already in here. */
+    MBArray * array;
+};
+
+typedef struct {
+    uint64_t nhash;
+    char * shash;
+} Key;
+
+typedef struct _BloomFilter BloomFilter;
+
+BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
+                                const char * file, BTYPE num_bits, int oflags, int perms,
+                                int *hash_seeds, int num_hashes);
+
+void bloomfilter_Destroy(BloomFilter * bf);
+
+MBArray * mbarray_And_Ternary(MBArray * dest, MBArray * a, MBArray * b);
+
+MBArray * mbarray_Or_Ternary(MBArray * dest, MBArray * a, MBArray * b);
+
+MBArray * mbarray_Xor_Ternary(MBArray * dest, MBArray * a, MBArray * b);
+
+MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms);
+
+int mbarray_Update(MBArray * array, char * data, int size);
+/*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
+
+int mbarray_FileSize(MBArray * array);
+
+char * mbarray_CharData(MBArray * array);
+
+int bloomfilter_Update(BloomFilter * bf, char * data, int size);
+
+BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int perms);
+
+/* A lot of this is inlined.. */
+uint32_t _hash_char(uint32_t hash_seed, Key * key);
+
+uint32_t _hash_long(uint32_t hash_seed, Key * key);
+
+
+static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
+{
+    register uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
+    register BTYPE mod = bf->array->bits;
+    register int i;
+
+    if (key->shash == NULL)
+        hashfunc = _hash_long;
+
+    for (i = bf->num_hashes - 1; i >= 0; --i) {
+        if (mbarray_Set(bf->array, (*hashfunc)(bf->hash_seeds[i], key) % mod)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+__attribute__((always_inline))
+
+
+static inline int bloomfilter_Test(BloomFilter * bf, Key * key)
+{
+    register BTYPE mod = bf->array->bits;
+    register uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
+    register int i;
+
+    if (key->shash == NULL)
+        hashfunc = _hash_long;
+
+    for (i = bf->num_hashes - 1; i >= 0; --i) {
+        if (!mbarray_Test(bf->array, (*hashfunc)(bf->hash_seeds[i], key) % mod)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+__attribute__((always_inline))
+
+
+
+
+#endif
