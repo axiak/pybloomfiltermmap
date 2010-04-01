@@ -78,16 +78,6 @@ def run_test():
             t.timeit(NUM) / float(NUM))
 
         test_errors(bf, dict_wordlist, test_wordlist)
-
-
-def x():
-    import random, string
-    for i in dict_wordlist:
-        if random.random() < 0.1:
-            print i
-    for i in xrange(20000):
-        print ''.join(random.choice(string.lowercase)
-                      for i in xrange(random.randint(3, 7)))
         
 if __name__ == "__main__":
     run_test()
