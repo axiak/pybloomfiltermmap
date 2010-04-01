@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>BloomFilter Class Reference &mdash; Python BloomFilter v0.1.5 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '0.1.5',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Python BloomFilter v0.1.5 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to Python BloomFilter’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Python BloomFilter’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Python BloomFilter v0.1.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pybloomfilter">
+<h1>BloomFilter Class Reference<a class="headerlink" href="#module-pybloomfilter" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+</ul>
+<p><em>Platforms: </em>Unix, Windows</p>
+<dl class="class">
+<dt id="pybloomfilter.BloomFilter">
+<em class="property">class </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">BloomFilter</tt><big>(</big><em>capacity : int</em>, <em>error_rate : float</em>, <em>filename : string</em><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter" title="Permalink to this definition">¶</a></dt>
+<dd>Create a new BloomFilter object with a given capacity and error_rate.
+<strong>Note that we do not check capacity.</strong> This is important, because
+I want to be able to support logical OR and AND (see below).
+The capacity and error_rate then together serve as a contract&#8212;you add
+less than capacity items, and the Bloom Filter will have an error rate
+less than error_rate.</dd></dl>
+
+<div class="section" id="static-methods">
+<h2>Static Methods<a class="headerlink" href="#static-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="staticmethod">
+<dt id="pybloomfilter.open">
+<em class="property">static </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">open</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pybloomfilter.open" title="Permalink to this definition">¶</a></dt>
+<dd>Open an already existing Bloomfilter file.</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pybloomfilter.from_base64">
+<em class="property">static </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">from_base64</tt><big>(</big><em>filename</em>, <em>input</em><span class="optional">[</span>, <em>perm = 0755</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#pybloomfilter.from_base64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new BloomFilter object on filename from the input base64 string.
+Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="o">.</span><span class="n">from_base64</span><span class="p">(</span><span class="s">&quot;/tmp/mike.bf&quot;</span><span class="p">,</span>
+<span class="go">     &quot;eJwFwcuWgiAAANC9v+JCx7By0QKt0GHEbKSknflAQ9QmTyRfP/fW5E9XTRSX&quot;</span>
+<span class="go">     &quot;qcLlqGNXphAqcfVH\nRoNv0n4JlTpIvAP0e1+RyXX6I637ggA+VPZnTYR1A4&quot;</span>
+<span class="go">     &quot;Um5s9geYaZZLiT208JIiG3iwhf3Fwlzb3Y\n5NRL4uNQS6/d9OvTDJbnZMnR&quot;</span>
+<span class="go">     &quot;zcrplOX5kmsVIkQziM+vw4hCDQ3OkN9m3WVfPWzGfaTeRftMCLws\nPnzEzs&quot;</span>
+<span class="go">     &quot;gjAW60xZTBbj/bOAgYbK50PqjdzvgHZ6FHZw==\n&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;MIKE&quot;</span> <span class="ow">in</span> <span class="n">bf</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="instance-attributes">
+<h2>Instance Attributes<a class="headerlink" href="#instance-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.capacity">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">capacity</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.capacity" title="Permalink to this definition">¶</a></dt>
+<dd>The number of elements for this filter.</dd></dl>
+
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.error_rate">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">error_rate</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.error_rate" title="Permalink to this definition">¶</a></dt>
+<dd>The acceptable probability of false positives.</dd></dl>
+
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.hash_seeds">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">hash_seeds</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.hash_seeds" title="Permalink to this definition">¶</a></dt>
+<dd>The integer seeds used for the random hashing.</dd></dl>
+
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.name">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">name</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.name" title="Permalink to this definition">¶</a></dt>
+<dd>The file name (compatible with file objects)</dd></dl>
+
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.num_bits">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">num_bits</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.num_bits" title="Permalink to this definition">¶</a></dt>
+<dd>The number of bits used in the filter as buckets</dd></dl>
+
+<dl class="attribute">
+<dt id="pybloomfilter.BloomFilter.num_hashes">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">num_hashes</tt><a class="headerlink" href="#pybloomfilter.BloomFilter.num_hashes" title="Permalink to this definition">¶</a></dt>
+<dd>The number of hash functions used when computing</dd></dl>
+
+</div>
+<div class="section" id="instance-methods">
+<h2>Instance Methods<a class="headerlink" href="#instance-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.add">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">add</tt><big>(</big><em>item</em><big>)</big> &rarr; Boolean<a class="headerlink" href="#pybloomfilter.BloomFilter.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the item to the bloom filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameter:</th><td class="field-body"><em>item</em> &#8211; Hashable object</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Boolean (True if item already in the filter)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.clear_all">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">clear_all</tt><big>(</big><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.clear_all" title="Permalink to this definition">¶</a></dt>
+<dd>Remove all elements from the bloom filter at once.</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.copy">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">copy</tt><big>(</big><em>filename</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies the current BloomFilter object to another object with
+new filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameter:</th><td class="field-body"><em>filename</em> &#8211; string filename</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">new BloomFilter object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.copy_template">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">copy_template</tt><big>(</big><em>filename</em><span class="optional">[</span>, <em>perm=0755</em><span class="optional">]</span><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.copy_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new BloomFilter object with the same <em>parameters</em>&#8211;same
+hash seeds, same size.. everything. Once this is performed, the
+two filters are <em>comparable</em>, so you can perform logical operators.
+Example:</p>
+<div class="highlight-python"><pre> &gt;&gt;&gt; apple = BloomFilter(100, 0.1, '/tmp/apple')
+&gt;&gt;&gt; apple.add('apple')
+False
+&gt;&gt;&gt; pear = apple.copy_template('/tmp/pear')
+&gt;&gt;&gt; pear.add('pear')
+False
+&gt;&gt;&gt; pear |= apple</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.sync">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">sync</tt><big>(</big><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.sync" title="Permalink to this definition">¶</a></dt>
+<dd>Forces a sync() call on the underlying mmap file object. Use this if
+you are about to copy the file and you want to be Sure (TM) you got
+everything correctly.</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.to_base64">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">to_base64</tt><big>(</big><big>)</big> &rarr; string<a class="headerlink" href="#pybloomfilter.BloomFilter.to_base64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a compressed, base64 encoded version of the Bloom filter.
+Since the bloom filter is efficiently in binary on the file system
+this may not be too useful. I find it useful for debugging so I can
+copy filters from one terminal to another in their entirety.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Base64 encoded string representing filter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.update">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">update</tt><big>(</big><em>iterable</em><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.update" title="Permalink to this definition">¶</a></dt>
+<dd>Calls add() on all items in the iterable.</dd></dl>
+
+</div>
+<div class="section" id="magic-methods">
+<h2>Magic Methods<a class="headerlink" href="#magic-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.__in__">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">__in__</tt><big>(</big><em>item</em><big>)</big> &rarr; Boolean<a class="headerlink" href="#pybloomfilter.BloomFilter.__in__" title="Permalink to this definition">¶</a></dt>
+<dd>Check to see if item is contained in the filter, with
+an acceptable false positive rate of error_rate (see above).</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.__ior__">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">__ior__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__ior__" title="Permalink to this definition">¶</a></dt>
+<dd>Perform an OR with another <em>comparable</em> filter.
+You can (only) construct comparable filters with <strong>copy_template</strong> above.
+See the example in copy_template. In that example, pear will have
+both &#8220;apple&#8221; and &#8220;pear&#8221;.</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.__ixor__">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">__ixor__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__ixor__" title="Permalink to this definition">¶</a></dt>
+<dd>See above.</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.__iand__">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">__iand__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__iand__" title="Permalink to this definition">¶</a></dt>
+<dd>See above.</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="#">BloomFilter Class Reference</a><ul>
+<li><a class="reference external" href="#static-methods">Static Methods</a></li>
+<li><a class="reference external" href="#instance-attributes">Instance Attributes</a></li>
+<li><a class="reference external" href="#instance-methods">Instance Methods</a></li>
+<li><a class="reference external" href="#magic-methods">Magic Methods</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">Welcome to Python BloomFilter&#8217;s documentation!</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/ref.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Python BloomFilter’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Python BloomFilter v0.1.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2010, Michael Axiak.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.5.
+    </div>
+  </body>
+</html>

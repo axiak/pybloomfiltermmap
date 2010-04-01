@@ -44,6 +44,17 @@ filter with just a few pieces of fruit::
     "ji/EC8s1PWG5fuVizW4Jox6/3o9XxBBDDLFbwcg9v/AwjrPHtTRsX34O01mxLw37bhCTjJk0+PLK"
     "08HYd4MYYojdKmYnBfjsktEpySY2tGGZzWaIIfYDGB271Yaieaat/AaOkNKb"
 
+Reference
+------------
+
+All of the reference information is available below:
+
+.. toctree::
+   :maxdepth: 2
+
+   ref
+
+
 
 Why pybloomfilter
 ---------------------
@@ -58,25 +69,32 @@ module:
 Benchmarks
 ---------------------
 
-Simple load and add
-^^^^^^^^^^^^^^^^^
+Simple load and add speed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-I have a simple benchmark in test/speedtest.py which compares
+I have a simple benchmark in `test/speedtest.py <http://code.google.com/p/python-bloom-filter/source/browse/tests/speedtest.py>`_ which compares
 this module to the good
 `pybloom module <http://github.com/jaybaird/python-bloomfilter/>`_::
 
+    (pybloom module)
     pybloom load took 2.70 s/run
-    <class 'pybloom.pybloom.BloomFilter'> took 0.61 s/run
-    0.25% positive 0.00% negative
+    pybloom tests took 0.61 s/run
+    Errors: 0.25% positive 0.00% negative
 
+    (this module)
     pybloomfilter load took 0.23 s/run [1200% faster]
     pybloomfilter tests took 0.03 s/run [2000% faster]
-    0.03% positive 0.00% negative
+    Errors: 0.03% positive 0.00% negative
+
+In this test we just looked at adding words from a dictionary file,
+then testing to see if each word of another file was in the dictionary.
 
 Serialization
 ^^^^^^^^^^^^^^^^^
 
 Since this package natively uses mmap files, **no serialization is needed**.
+Therefore, if you have to do a lot of moving between disks etc, this
+module is an obvious win.
 
 Install
 ---------------------
@@ -92,11 +110,4 @@ So, to install on a computer with gcc:
  4. Type $ "sudo python setup.py install"
  5. Done!
 
-
-Indices and tables
----------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

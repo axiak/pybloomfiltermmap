@@ -62,22 +62,26 @@ else:
 def run_test():
     dict_wordlist = create_word_list('words')
     test_wordlist = create_word_list('testwords')
-    NUM = 20
+    NUM = 10
 
     for creator in creators:
         start = time.time()
-        t = timeit.Timer(lambda : get_and_add_words(creator, dict_wordlist))
-        print "%s took %0.2f s/run" % (
-            creator,
-            t.timeit(NUM) / float(NUM))
+        if NUM:
+            t = timeit.Timer(lambda : get_and_add_words(creator, dict_wordlist))
+            print "%s took %0.2f s/run" % (
+                creator,
+                t.timeit(NUM) / float(NUM))
         bf = get_and_add_words(creator, dict_wordlist)
 
-        t = timeit.Timer(lambda : check_words(bf, test_wordlist))
-        print "%s took %0.2f s/run" % (
-            creator,
-            t.timeit(NUM) / float(NUM))
+        if NUM:
+            t = timeit.Timer(lambda : check_words(bf, test_wordlist))
+            print "%s took %0.2f s/run" % (
+                creator,
+                t.timeit(NUM) / float(NUM))
+
+        raw_input()
 
         test_errors(bf, dict_wordlist, test_wordlist)
-        
+
 if __name__ == "__main__":
     run_test()
