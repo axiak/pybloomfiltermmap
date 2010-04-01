@@ -165,8 +165,10 @@ cdef class BloomFilter:
             key.shash = NULL
             key.nhash = hash(item)
 
-        if cbloomfilter.bloomfilter_Add(self._bf, &key):
+        result = cbloomfilter.bloomfilter_Add(self._bf, &key)
+        if result == 2:
             raise RuntimeError("Some problem occured while trying to add key.")
+        return bool(result)
 
     def update(self, iterable):
         for item in iterable:

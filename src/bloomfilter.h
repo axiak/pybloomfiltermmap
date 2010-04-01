@@ -57,16 +57,22 @@ static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
     register uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
     register BTYPE mod = bf->array->bits;
     register int i;
+    register int result = 1;
+    register uint32_t hash_res;
 
     if (key->shash == NULL)
         hashfunc = _hash_long;
 
     for (i = bf->num_hashes - 1; i >= 0; --i) {
-        if (mbarray_Set(bf->array, (*hashfunc)(bf->hash_seeds[i], key) % mod)) {
-            return 1;
+        hash_res = (*hashfunc)(bf->hash_seeds[i], key) % mod;
+        if (result && !mbarray_Test(bf->array, hash_res)) {
+            result = 0;
+        }
+        if (mbarray_Set(bf->array, hash_res)) {
+            return 2;
         }
     }
-    return 0;
+    return result;
 }
 __attribute__((always_inline))
 
