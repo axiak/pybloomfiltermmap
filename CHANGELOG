@@ -1,0 +1,4 @@
+0.1.8 2010-3-31)
+ - Fixed bug where opening invalid bloom files caused seg faults [BUG]
+ - Fixed alignment bug where sometimes hash seeds would not      [BUG]
+   be compared correctly.

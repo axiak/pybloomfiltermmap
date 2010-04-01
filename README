@@ -1,0 +1,8 @@
+Please read the docs in ./docs/html or online at http://mike.axiak.net/python-bloom-filter/docs/html/
+
+Quick install:
+After installing the Cython and python dev stuff, just run:
+
+   $ sudo python setup.py install
+
+and you should be set.
