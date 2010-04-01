@@ -83,10 +83,31 @@ module:</p>
 <blockquote>
 <ul class="simple">
 <li>It natively uses <a class="reference external" href="http://en.wikipedia.org/wiki/Mmap">mmaped files</a>.</li>
-<li>It is Fast.</li>
 <li>It natively does the set things you want a Bloom filter to do.</li>
+<li>It is Fast (see Benchmarks).</li>
 </ul>
 </blockquote>
+</div>
+<div class="section" id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-load-and-add">
+<h3>Simple load and add<a class="headerlink" href="#simple-load-and-add" title="Permalink to this headline">¶</a></h3>
+<p>I have a simple benchmark in test/speedtest.py which compares
+this module to the good
+<a class="reference external" href="http://github.com/jaybaird/python-bloomfilter/">pybloom module</a>:</p>
+<div class="highlight-python"><pre>pybloom load took 2.70 s/run
+&lt;class 'pybloom.pybloom.BloomFilter'&gt; took 0.61 s/run
+0.25% positive 0.00% negative
+
+pybloomfilter load took 0.23 s/run [1200% faster]
+pybloomfilter tests took 0.03 s/run [2000% faster]
+0.03% positive 0.00% negative</pre>
+</div>
+</div>
+<div class="section" id="serialization">
+<h3>Serialization<a class="headerlink" href="#serialization" title="Permalink to this headline">¶</a></h3>
+<p>Since this package natively uses mmap files, <strong>no serialization is needed</strong>.</p>
+</div>
 </div>
 <div class="section" id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
@@ -104,14 +125,14 @@ So, to install on a computer with gcc:</p>
 </ol>
 </blockquote>
 </div>
-</div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="genindex.html"><em>Index</em></a></li>
 <li><a class="reference external" href="modindex.html"><em>Module Index</em></a></li>
 <li><a class="reference external" href="search.html"><em>Search Page</em></a></li>
 </ul>
+</div>
 </div>
 
 
@@ -124,10 +145,15 @@ So, to install on a computer with gcc:</p>
             <ul>
 <li><a class="reference external" href="#">Welcome to Python BloomFilter&#8217;s documentation!</a><ul>
 <li><a class="reference external" href="#why-pybloomfilter">Why pybloomfilter</a></li>
-<li><a class="reference external" href="#install">Install</a></li>
+<li><a class="reference external" href="#benchmarks">Benchmarks</a><ul>
+<li><a class="reference external" href="#simple-load-and-add">Simple load and add</a></li>
+<li><a class="reference external" href="#serialization">Serialization</a></li>
 </ul>
 </li>
+<li><a class="reference external" href="#install">Install</a></li>
 <li><a class="reference external" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
 </ul>
 
             <h3>This Page</h3>

@@ -74,7 +74,7 @@ cdef class BloomFilter:
             if not mode & os.O_CREAT:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
-            num_bits = math.ceil((capacity * math.log(error_rate)) / math.log(1.0 /
+            num_bits = 5 * math.ceil((capacity * math.log(error_rate)) / math.log(1.0 /
                                                                   (math.pow(2.0,
                                                                             math.log(2.0)))))
             num_bits = cbloomfilter.next_prime(num_bits)
@@ -205,4 +205,3 @@ cdef class BloomFilter:
 
     from_base64 = staticmethod(bf_from_base64)
     open = staticmethod(bf_from_file)
-

@@ -46,18 +46,40 @@ filter with just a few pieces of fruit::
 
 
 Why pybloomfilter
--------------------
+---------------------
 
 As I already mentioned, there are a couple reasons to use this
 module:
 
  * It natively uses `mmaped files <http://en.wikipedia.org/wiki/Mmap>`_.
- * It is Fast.
  * It natively does the set things you want a Bloom filter to do.
+ * It is Fast (see Benchmarks).
 
+Benchmarks
+---------------------
+
+Simple load and add
+^^^^^^^^^^^^^^^^^
+
+I have a simple benchmark in test/speedtest.py which compares
+this module to the good
+`pybloom module <http://github.com/jaybaird/python-bloomfilter/>`_::
+
+    pybloom load took 2.70 s/run
+    <class 'pybloom.pybloom.BloomFilter'> took 0.61 s/run
+    0.25% positive 0.00% negative
+
+    pybloomfilter load took 0.23 s/run [1200% faster]
+    pybloomfilter tests took 0.03 s/run [2000% faster]
+    0.03% positive 0.00% negative
+
+Serialization
+^^^^^^^^^^^^^^^^^
+
+Since this package natively uses mmap files, **no serialization is needed**.
 
 Install
--------------
+---------------------
 
 Unfortunately at the time I only support systems with a nice build environment
 (Linux, OS X, ..). However, I know people build Cython code on Win32 all the
@@ -72,7 +94,7 @@ So, to install on a computer with gcc:
 
 
 Indices and tables
-==================
+---------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
