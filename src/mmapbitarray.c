@@ -33,6 +33,7 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
         return NULL;
     }
 
+    array->filename = NULL;
     array->vector = NULL;
     errno = 0;
     array->fd = open(file, oflag, perms);

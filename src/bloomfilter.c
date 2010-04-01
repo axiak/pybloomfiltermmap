@@ -23,8 +23,8 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
     bf->num_hashes = num_hashes;
     memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
-
     array = mbarray_Create(num_bits, file, (char *)bf, sizeof(BloomFilter), oflags, perms);
+
     if (!array) {
         bloomfilter_Destroy(bf);
         return NULL;

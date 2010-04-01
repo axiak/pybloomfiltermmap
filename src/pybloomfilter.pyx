@@ -60,20 +60,23 @@ cdef class BloomFilter:
         mode = construct_mode(mode)
 
 
-        if os.path.exists(filename):
-            self._bf = cbloomfilter.bloomfilter_Create(capacity,
-                                                       error_rate,
-                                                       filename,
-                                                       0,
-                                                       os.O_RDWR,
-                                                       perm,
-                                                       NULL, 0)
-            if self._bf is NULL:
-                python_exc.PyErr_NoMemory()
-        else:
-            if not mode & os.O_CREAT:
+        if not mode & os.O_CREAT:
+            if os.path.exists(filename):
+                self._bf = cbloomfilter.bloomfilter_Create(capacity,
+                                                           error_rate,
+                                                           filename,
+                                                           0,
+                                                           os.O_RDWR,
+                                                           perm,
+                                                           NULL, 0)
+                if self._bf is NULL:
+                    raise ValueError("Invalid Bloomfilter file: %s" % filename)
+            else:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
+        else:
+            if os.path.exists(filename):
+                os.unlink(filename)
             num_bits = 5 * math.ceil((capacity * math.log(error_rate)) / math.log(1.0 /
                                                                   (math.pow(2.0,
                                                                             math.log(2.0)))))
@@ -98,7 +101,7 @@ cdef class BloomFilter:
     property hash_seeds:
         def __get__(self):
             result = array.array('I')
-            result.fromstring(<char *>self._bf.hash_seeds)
+            result.fromstring((<char *>self._bf.hash_seeds)[:4 * self.num_hashes])
             return result
 
     property capacity:
