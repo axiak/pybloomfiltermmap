@@ -37,6 +37,9 @@ def bf_from_base64(filename, string, perm=0755):
 def bf_from_file(filename):
     return BloomFilter(ReadFile, 0.1, filename, 0)
 
+class IndeterminateCountError(ValueError):
+    pass
+
 cdef class BloomFilter:
     """
     The BloomFilter class implements a bloom filter that uses mmap'd files.
@@ -152,6 +155,8 @@ cdef class BloomFilter:
 
     def copy_template(self, filename, perm=0755):
         cdef BloomFilter copy = BloomFilter(0, 0, NoConstruct)
+        if os.path.exists(filename):
+            os.unlink(filename)
         copy._bf = cbloomfilter.bloomfilter_Copy_Template(self._bf, filename, perm)
         return copy
 
@@ -177,19 +182,33 @@ cdef class BloomFilter:
         for item in iterable:
             self.add(item)
 
+    def __len__(self):
+        if not self._bf.count_correct:
+            raise IndeterminateCountError("Length of BloomFilter object is unavailable after intersection or union called.")
+        return self._bf.elem_count
+
     def __ior__(self, BloomFilter other):
         self._assert_comparable(other)
         cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
+        self._bf.count_correct = 0
+        return self
+
+    def union(self, BloomFilter other):
+        self._assert_comparable(other)
+        cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
+        self._bf.count_correct = 0
         return self
 
     def __iand__(self, BloomFilter other):
         self._assert_comparable(other)
         cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
+        self._bf.count_correct = 0
         return self
 
-    def __ixor__(self, BloomFilter other):
+    def intersection(self, BloomFilter other):
         self._assert_comparable(other)
-        cbloomfilter.mbarray_Xor(self._bf.array, other._bf.array)
+        cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
+        self._bf.count_correct = 0
         return self
 
     def _assert_comparable(self, BloomFilter other):

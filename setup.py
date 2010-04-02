@@ -3,6 +3,7 @@ from distutils.extension import Extension
 
 ext_files = ["src/mmapbitarray.c",
              "src/bloomfilter.c",
+             "src/primetester.c",
              ]
 
 kwargs = {}

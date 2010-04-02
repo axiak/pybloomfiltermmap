@@ -21,6 +21,11 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
     bf->max_num_elem = max_num_elem;
     bf->error_rate = error_rate;
     bf->num_hashes = num_hashes;
+    bf->count_correct = 1;
+    bf->bf_version = BF_CURRENT_VERSION;
+    bf->elem_count = 0;
+    memset(bf->reserved, sizeof(uint32_t) * 32, 0);
+
     memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
     array = mbarray_Create(num_bits, file, (char *)bf, sizeof(BloomFilter), oflags, perms);
@@ -30,13 +35,22 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
         return NULL;
     }
 
+    /* After we create the new array object, this array may already
+       have all of the bloom filter data from the file in the
+       header info. 
+       By calling mbarray_Header, we copy that header data
+       back into this BloomFilter object.
+    */
     if (mbarray_Header((char *)bf, array, sizeof(BloomFilter)) == NULL) {
         bloomfilter_Destroy(bf);
         mbarray_Destroy(array);
         return NULL;
     }
 
+    /* Since we just initialized from a file, we have to
+       fix our pointers */
     bf->array = array;
+
     return bf;
 }
 

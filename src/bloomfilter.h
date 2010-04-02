@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "mmapbitarray.h"
-
+#define BF_CURRENT_VERSION 1
 
 struct _BloomFilter {
     uint64_t max_num_elem;
@@ -12,6 +12,10 @@ struct _BloomFilter {
     uint32_t hash_seeds[256];
     /* All of the bit data is already in here. */
     MBArray * array;
+    unsigned char bf_version;
+    unsigned char count_correct;
+    uint64_t elem_count;
+    uint32_t reserved[32];
 };
 
 typedef struct {
@@ -54,7 +58,7 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key);
 
 static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
 {
-    register uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
+    uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
     register BTYPE mod = bf->array->bits;
     register int i;
     register int result = 1;
@@ -71,6 +75,9 @@ static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
         if (mbarray_Set(bf->array, hash_res)) {
             return 2;
         }
+    }
+    if (!result && bf->count_correct) {
+        bf->elem_count ++;
     }
     return result;
 }

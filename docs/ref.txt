@@ -10,7 +10,6 @@ BloomFilter Class Reference
 .. moduleauthor:: Michael Axiak <mike@axiak.net>
 
 
-
 .. class:: BloomFilter(capacity : int, error_rate : float, filename : string)
 
    Create a new BloomFilter object with a given capacity and error_rate.
@@ -23,11 +22,11 @@ BloomFilter Class Reference
 Static Methods
 ------------------
 
-.. staticmethod:: open(filename)
+.. staticmethod:: BloomFilter.open(filename)
 
    Open an already existing Bloomfilter file.
 
-.. staticmethod:: from_base64(filename, input, [perm = 0755])
+.. staticmethod:: BloomFilter.from_base64(filename, input, [perm = 0755])
 
    Create a new BloomFilter object on filename from the input base64 string.
    Example::
@@ -125,8 +124,53 @@ Instance Methods
 
    Calls add() on all items in the iterable.
 
+.. method:: BloomFilter.union(filter) -> BloomFilter
+
+   Perform a set OR with another *comparable* filter.
+   You can (only) construct comparable filters with **copy_template** above.
+   See the example in copy_template. In that example, pear will have
+   both "apple" and "pear".
+   
+   The result will occur **in place**. That is, calling::
+
+   bf.union(bf2)
+
+   is a way to add all the elements of bf2 to bf.
+
+   *N.B.: Calling this function will render future calls to len()
+   invalid.*
+
+.. method:: BloomFilter.intersection(filter) -> BloomFilter
+
+   The same as union() above except it uses a set AND instead of a
+   set OR.
+   
+   *N.B.: Calling this function will render future calls to len()
+   invalid.*
+
 Magic Methods
 --------------
+
+.. method:: BloomFilter.__len__(item) -> Integer
+
+   Returns the number of distinct elements that have been
+   added to the BloomFilter object, subject to the error
+   given in error_rate.
+
+   Example::
+
+      >>> bf = BloomFilter(100, 0.1, '/tmp/fruit.bloom')
+      >>> bf.add("Apple")
+      >>> bf.add('Apple')
+      >>> bf.add('orange')
+      >>> len(bf)
+      2
+      >>> bf2 = bf.copy_template('/tmp/new.bloom')
+      >>> bf2 |= bf
+      >>> len(bf2)
+      Traceback (most recent call last):
+        ...
+      pybloomfilter.IndeterminateCountError: Length of BloomFilter object is unavailable after intersection or union called.
 
 .. method:: BloomFilter.__in__(item) -> Boolean
 
@@ -135,15 +179,17 @@ Magic Methods
 
 .. method:: BloomFilter.__ior__(filter) -> BloomFilter
 
-   Perform an OR with another *comparable* filter.
-   You can (only) construct comparable filters with **copy_template** above.
-   See the example in copy_template. In that example, pear will have
-   both "apple" and "pear".
-
-.. method:: BloomFilter.__ixor__(filter) -> BloomFilter
-
-   See above.
+   See union(filter)
 
 .. method:: BloomFilter.__iand__(filter) -> BloomFilter
 
-   See above.
+   See intersection(filter)
+
+Exceptions
+--------------
+
+.. class:: IndeterminateCountError(message)
+
+   The exception that is raised if len() is called on a BloomFilter
+   object after |=, &=, intersection(), or union() is used.
+

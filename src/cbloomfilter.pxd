@@ -29,6 +29,9 @@ cdef extern from "bloomfilter.h":
          int num_hashes
          long * hash_seeds
          MBArray * array
+         unsigned char bf_version
+         unsigned char count_correct
+         unsigned long long elem_count
 
      ctypedef struct Key:
          long nhash
