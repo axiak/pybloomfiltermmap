@@ -1,0 +1,149 @@
+BloomFilter Class Reference
+============================
+
+.. toctree::
+   :maxdepth: 2
+
+.. module:: pybloomfilter
+   :platform: Unix, Windows
+   :synopsis: A fast BloomFilter for Python
+.. moduleauthor:: Michael Axiak <mike@axiak.net>
+
+
+
+.. class:: BloomFilter(capacity : int, error_rate : float, filename : string)
+
+   Create a new BloomFilter object with a given capacity and error_rate.
+   **Note that we do not check capacity.** This is important, because
+   I want to be able to support logical OR and AND (see below).
+   The capacity and error_rate then together serve as a contract---you add
+   less than capacity items, and the Bloom Filter will have an error rate
+   less than error_rate.
+
+Static Methods
+------------------
+
+.. staticmethod:: open(filename)
+
+   Open an already existing Bloomfilter file.
+
+.. staticmethod:: from_base64(filename, input, [perm = 0755])
+
+   Create a new BloomFilter object on filename from the input base64 string.
+   Example::
+
+    >>> bf = BloomFilter.from_base64("/tmp/mike.bf", 
+         "eJwFwcuWgiAAANC9v+JCx7By0QKt0GHEbKSknflAQ9QmTyRfP/fW5E9XTRSX"
+         "qcLlqGNXphAqcfVH\nRoNv0n4JlTpIvAP0e1+RyXX6I637ggA+VPZnTYR1A4"
+         "Um5s9geYaZZLiT208JIiG3iwhf3Fwlzb3Y\n5NRL4uNQS6/d9OvTDJbnZMnR"
+         "zcrplOX5kmsVIkQziM+vw4hCDQ3OkN9m3WVfPWzGfaTeRftMCLws\nPnzEzs"
+         "gjAW60xZTBbj/bOAgYbK50PqjdzvgHZ6FHZw==\n")
+    >>> "MIKE" in bf
+    True
+
+Instance Attributes
+---------------------
+
+.. attribute:: BloomFilter.capacity
+
+    The number of elements for this filter.
+
+.. attribute:: BloomFilter.error_rate
+
+    The acceptable probability of false positives.
+
+.. attribute:: BloomFilter.hash_seeds
+
+    The integer seeds used for the random hashing.
+
+.. attribute:: BloomFilter.name
+
+    The file name (compatible with file objects)
+
+.. attribute:: BloomFilter.num_bits
+
+    The number of bits used in the filter as buckets
+
+.. attribute:: BloomFilter.num_hashes
+
+    The number of hash functions used when computing
+
+
+Instance Methods
+-------------------
+
+.. method:: BloomFilter.add(item) -> Boolean
+
+   Add the item to the bloom filter.
+
+   :param item: Hashable object
+   :rtype: Boolean (True if item already in the filter)
+
+.. method:: BloomFilter.clear_all()
+
+   Remove all elements from the bloom filter at once.
+
+.. method:: BloomFilter.copy(filename) -> BloomFilter
+
+   Copies the current BloomFilter object to another object with
+   new filename.
+
+   :param filename: string filename
+   :rtype: new BloomFilter object
+
+.. method:: BloomFilter.copy_template(filename, [perm=0755]) -> BloomFilter
+
+   Creates a new BloomFilter object with the same *parameters*--same
+   hash seeds, same size.. everything. Once this is performed, the
+   two filters are *comparable*, so you can perform logical operators.
+   Example::
+
+     >>> apple = BloomFilter(100, 0.1, '/tmp/apple')
+    >>> apple.add('apple')
+    False   
+    >>> pear = apple.copy_template('/tmp/pear')
+    >>> pear.add('pear')
+    False
+    >>> pear |= apple
+
+.. method:: BloomFilter.sync()
+
+   Forces a sync() call on the underlying mmap file object. Use this if
+   you are about to copy the file and you want to be Sure (TM) you got
+   everything correctly.
+
+.. method:: BloomFilter.to_base64() -> string
+
+   Creates a compressed, base64 encoded version of the Bloom filter.
+   Since the bloom filter is efficiently in binary on the file system
+   this may not be too useful. I find it useful for debugging so I can
+   copy filters from one terminal to another in their entirety.
+
+   :rtype: Base64 encoded string representing filter
+
+.. method:: BloomFilter.update(iterable)
+
+   Calls add() on all items in the iterable.
+
+Magic Methods
+--------------
+
+.. method:: BloomFilter.__in__(item) -> Boolean
+
+   Check to see if item is contained in the filter, with
+   an acceptable false positive rate of error_rate (see above).
+
+.. method:: BloomFilter.__ior__(filter) -> BloomFilter
+
+   Perform an OR with another *comparable* filter.
+   You can (only) construct comparable filters with **copy_template** above.
+   See the example in copy_template. In that example, pear will have
+   both "apple" and "pear".
+
+.. method:: BloomFilter.__ixor__(filter) -> BloomFilter
+
+   See above.
+
+.. method:: BloomFilter.__iand__(filter) -> BloomFilter
+
+   See above.
