@@ -1,0 +1,15 @@
+README
+setup.py
+src/primetester.h
+src/bloomfilter.h
+src/primetester.c
+src/pybloomfilter.pyx
+src/mmapbitarray.c
+src/cbloomfilter.pxd
+src/pybloomfilter.c
+src/mmapbitarray.h
+src/bloomfilter.c
+tests/speedtest.py
+tests/testwords
+tests/words
+

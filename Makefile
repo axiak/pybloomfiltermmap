@@ -7,6 +7,7 @@ install:
 
 
 clean:
-	rm -fv src/pybloomfilter.c
+	#rm -fv src/pybloomfilter.c
 	rm -rf build/
+	rm -rf dist/
 	rm -fv *so
