@@ -20,7 +20,7 @@ ext_modules = [Extension("pybloomfilter",
                          ext_files)]
 
 setup(
-  name = 'C_Bloom_Filter',
+  name = 'pybloomfilter',
   version = "0.1.10",
   author = "Michael Axiak",
   author_email = "mike@axiak.net",
@@ -29,3 +29,4 @@ setup(
   ext_modules = ext_modules,
   **kwargs
 )
+ 

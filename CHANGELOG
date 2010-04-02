@@ -1,3 +1,8 @@
+0.1.10 2010-4-2)
+ - Added MANIFEST so that building distributions works [FEATURE]
+ - Restructured docs so that html is a symlink to the _build/html directory [FEATURE]
+ - Added Cython detection in setup.py. Building now works without Cython installed [FEATURE]
+
 0.1.8 2010-3-31)
  - Fixed bug where opening invalid bloom files caused seg faults [BUG]
  - Fixed alignment bug where sometimes hash seeds would not      [BUG]
