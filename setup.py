@@ -26,6 +26,7 @@ setup(
   author_email = "mike@axiak.net",
   url = "http://code.google.com/p/python-bloom-filter/",
   description = "A Bloom filter for Python built on mmap",
+  license = "MIT License",
   ext_modules = ext_modules,
   **kwargs
 )
