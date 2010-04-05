@@ -62,13 +62,13 @@ less than error_rate.</dd></dl>
 <div class="section" id="static-methods">
 <h2>Static Methods<a class="headerlink" href="#static-methods" title="Permalink to this headline">¶</a></h2>
 <dl class="staticmethod">
-<dt id="pybloomfilter.open">
-<em class="property">static </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">open</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pybloomfilter.open" title="Permalink to this definition">¶</a></dt>
+<dt id="pybloomfilter.BloomFilter.open">
+<em class="property">static </em><tt class="descclassname">BloomFilter.</tt><tt class="descname">open</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.open" title="Permalink to this definition">¶</a></dt>
 <dd>Open an already existing Bloomfilter file.</dd></dl>
 
 <dl class="staticmethod">
-<dt id="pybloomfilter.from_base64">
-<em class="property">static </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">from_base64</tt><big>(</big><em>filename</em>, <em>input</em><span class="optional">[</span>, <em>perm = 0755</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#pybloomfilter.from_base64" title="Permalink to this definition">¶</a></dt>
+<dt id="pybloomfilter.BloomFilter.from_base64">
+<em class="property">static </em><tt class="descclassname">BloomFilter.</tt><tt class="descname">from_base64</tt><big>(</big><em>filename</em>, <em>input</em><span class="optional">[</span>, <em>perm = 0755</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.from_base64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new BloomFilter object on filename from the input base64 string.
 Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="o">.</span><span class="n">from_base64</span><span class="p">(</span><span class="s">&quot;/tmp/mike.bf&quot;</span><span class="p">,</span>
@@ -203,9 +203,55 @@ copy filters from one terminal to another in their entirety.</p>
 <tt class="descclassname">BloomFilter.</tt><tt class="descname">update</tt><big>(</big><em>iterable</em><big>)</big><a class="headerlink" href="#pybloomfilter.BloomFilter.update" title="Permalink to this definition">¶</a></dt>
 <dd>Calls add() on all items in the iterable.</dd></dl>
 
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.union">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">union</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.union" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a set OR with another <em>comparable</em> filter.
+You can (only) construct comparable filters with <strong>copy_template</strong> above.
+See the example in copy_template. In that example, pear will have
+both &#8220;apple&#8221; and &#8220;pear&#8221;.</p>
+<p>The result will occur <strong>in place</strong>. That is, calling:</p>
+<p>bf.union(bf2)</p>
+<p>is a way to add all the elements of bf2 to bf.</p>
+<p><em>N.B.: Calling this function will render future calls to len()
+invalid.</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.intersection">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">intersection</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The same as union() above except it uses a set AND instead of a
+set OR.</p>
+<p><em>N.B.: Calling this function will render future calls to len()
+invalid.</em></p>
+</dd></dl>
+
 </div>
 <div class="section" id="magic-methods">
 <h2>Magic Methods<a class="headerlink" href="#magic-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="pybloomfilter.BloomFilter.__len__">
+<tt class="descclassname">BloomFilter.</tt><tt class="descname">__len__</tt><big>(</big><em>item</em><big>)</big> &rarr; Integer<a class="headerlink" href="#pybloomfilter.BloomFilter.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of distinct elements that have been
+added to the BloomFilter object, subject to the error
+given in error_rate.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;/tmp/fruit.bloom&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;Apple&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;Apple&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bf</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;orange&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bf</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bf2</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">copy_template</span><span class="p">(</span><span class="s">&#39;/tmp/new.bloom&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bf2</span> <span class="o">|=</span> <span class="n">bf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bf2</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="nc">pybloomfilter.IndeterminateCountError</span>: <span class="n-Identifier">Length of BloomFilter object is unavailable after intersection or union called.</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="method">
 <dt id="pybloomfilter.BloomFilter.__in__">
 <tt class="descclassname">BloomFilter.</tt><tt class="descname">__in__</tt><big>(</big><em>item</em><big>)</big> &rarr; Boolean<a class="headerlink" href="#pybloomfilter.BloomFilter.__in__" title="Permalink to this definition">¶</a></dt>
@@ -215,20 +261,21 @@ an acceptable false positive rate of error_rate (see above).</dd></dl>
 <dl class="method">
 <dt id="pybloomfilter.BloomFilter.__ior__">
 <tt class="descclassname">BloomFilter.</tt><tt class="descname">__ior__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__ior__" title="Permalink to this definition">¶</a></dt>
-<dd>Perform an OR with another <em>comparable</em> filter.
-You can (only) construct comparable filters with <strong>copy_template</strong> above.
-See the example in copy_template. In that example, pear will have
-both &#8220;apple&#8221; and &#8220;pear&#8221;.</dd></dl>
-
-<dl class="method">
-<dt id="pybloomfilter.BloomFilter.__ixor__">
-<tt class="descclassname">BloomFilter.</tt><tt class="descname">__ixor__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__ixor__" title="Permalink to this definition">¶</a></dt>
-<dd>See above.</dd></dl>
+<dd>See union(filter)</dd></dl>
 
 <dl class="method">
 <dt id="pybloomfilter.BloomFilter.__iand__">
 <tt class="descclassname">BloomFilter.</tt><tt class="descname">__iand__</tt><big>(</big><em>filter</em><big>)</big> &rarr; BloomFilter<a class="headerlink" href="#pybloomfilter.BloomFilter.__iand__" title="Permalink to this definition">¶</a></dt>
-<dd>See above.</dd></dl>
+<dd>See intersection(filter)</dd></dl>
+
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pybloomfilter.IndeterminateCountError">
+<em class="property">class </em><tt class="descclassname">pybloomfilter.</tt><tt class="descname">IndeterminateCountError</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#pybloomfilter.IndeterminateCountError" title="Permalink to this definition">¶</a></dt>
+<dd>The exception that is raised if len() is called on a BloomFilter
+object after <a href="#id1"><span class="problematic" id="id2">|</span></a>=, &amp;=, intersection(), or union() is used.</dd></dl>
 
 </div>
 </div>
@@ -246,6 +293,7 @@ both &#8220;apple&#8221; and &#8220;pear&#8221;.</dd></dl>
 <li><a class="reference external" href="#instance-attributes">Instance Attributes</a></li>
 <li><a class="reference external" href="#instance-methods">Instance Methods</a></li>
 <li><a class="reference external" href="#magic-methods">Magic Methods</a></li>
+<li><a class="reference external" href="#exceptions">Exceptions</a></li>
 </ul>
 </li>
 </ul>
