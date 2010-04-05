@@ -25,7 +25,7 @@ setup(
   version = "0.1.12",
   author = "Michael Axiak",
   author_email = "mike@axiak.net",
-  url = "http://code.google.com/p/python-bloom-filter/",
+  url = "http://github.com/axiak/pybloomfiltermmap/",
   description = "A Bloom filter for Python built on mmap",
   license = "MIT License",
   ext_modules = ext_modules,
