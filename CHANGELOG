@@ -1,3 +1,10 @@
+0.1.12 2010-4-5)
+ - Added __len__ which gives a good estimate of how many elements were
+   inserted [FEATURE]
+ - Removed __ixor__ since it didn't make much sense.
+ - Added .intersect() and .union() as a synonym for __iand__ and __ior__ [FEATURE]
+ - Added reserved space to the BloomFilter structure to support future updates. [FEATURE]
+
 0.1.10 2010-4-2)
  - Added MANIFEST so that building distributions works [FEATURE]
  - Restructured docs so that html is a symlink to the _build/html directory [FEATURE]
