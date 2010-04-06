@@ -97,7 +97,7 @@ Instance Methods
    two filters are *comparable*, so you can perform logical operators.
    Example::
 
-     >>> apple = BloomFilter(100, 0.1, '/tmp/apple')
+    >>> apple = BloomFilter(100, 0.1, '/tmp/apple')
     >>> apple.add('apple')
     False   
     >>> pear = apple.copy_template('/tmp/pear')

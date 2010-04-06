@@ -164,13 +164,14 @@ new filename.</p>
 hash seeds, same size.. everything. Once this is performed, the
 two filters are <em>comparable</em>, so you can perform logical operators.
 Example:</p>
-<div class="highlight-python"><pre> &gt;&gt;&gt; apple = BloomFilter(100, 0.1, '/tmp/apple')
-&gt;&gt;&gt; apple.add('apple')
-False
-&gt;&gt;&gt; pear = apple.copy_template('/tmp/pear')
-&gt;&gt;&gt; pear.add('pear')
-False
-&gt;&gt;&gt; pear |= apple</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">apple</span> <span class="o">=</span> <span class="n">BloomFilter</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;/tmp/apple&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apple</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;apple&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pear</span> <span class="o">=</span> <span class="n">apple</span><span class="o">.</span><span class="n">copy_template</span><span class="p">(</span><span class="s">&#39;/tmp/pear&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pear</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;pear&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pear</span> <span class="o">|=</span> <span class="n">apple</span>
+</pre></div>
 </div>
 </dd></dl>
 
