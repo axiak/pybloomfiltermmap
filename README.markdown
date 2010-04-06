@@ -5,7 +5,7 @@ correct library for Bloom Filters in Python.
 
 ## Docs
 
-You should probably read the docs online at http://mike.axiak.net/python-bloom-filter/docs/html/
+You should probably read the docs online at <http://mike.axiak.net/python-bloom-filter/docs/html/>
 
 ## Overview
 
