@@ -12,12 +12,12 @@ You should probably read the docs online at http://mike.axiak.net/python-bloom-f
 After you install, the interface to use is a cross between a file
 interface and a ste interface. As an example:
 
->>> fruit = pybloomfilter.BloomFilter(100000, 0.1, '/tmp/words.bloom')
->>> fruit.extend(('apple', 'pear', 'orange', 'apple'))
->>> len(bf)
-3
->>> 'mike' in fruit
-False
+    >>> fruit = pybloomfilter.BloomFilter(100000, 0.1, '/tmp/words.bloom')
+    >>> fruit.extend(('apple', 'pear', 'orange', 'apple'))
+    >>> len(bf)
+    3
+    >>> 'mike' in fruit
+    False
 
 ## Install
 
