@@ -1,0 +1,27 @@
+# Sphinx inventory version 1
+# Project: Python BloomFilter
+# Version: 0.1.5
+pybloomfilter mod ref.html
+pybloomfilter.BloomFilter.num_bits attribute ref.html
+pybloomfilter.BloomFilter.__iand__ method ref.html
+pybloomfilter.BloomFilter.__ior__ method ref.html
+pybloomfilter.BloomFilter.sync method ref.html
+pybloomfilter.BloomFilter.copy method ref.html
+pybloomfilter.BloomFilter.name attribute ref.html
+pybloomfilter.BloomFilter.__len__ method ref.html
+pybloomfilter.BloomFilter class ref.html
+pybloomfilter.IndeterminateCountError class ref.html
+pybloomfilter.BloomFilter.capacity attribute ref.html
+pybloomfilter.BloomFilter.error_rate attribute ref.html
+pybloomfilter.BloomFilter.add method ref.html
+pybloomfilter.BloomFilter.__in__ method ref.html
+pybloomfilter.BloomFilter.hash_seeds attribute ref.html
+pybloomfilter.BloomFilter.update method ref.html
+pybloomfilter.BloomFilter.copy_template method ref.html
+pybloomfilter.BloomFilter.open staticmethod ref.html
+pybloomfilter.BloomFilter.clear_all method ref.html
+pybloomfilter.BloomFilter.num_hashes attribute ref.html
+pybloomfilter.BloomFilter.to_base64 method ref.html
+pybloomfilter.BloomFilter.intersection method ref.html
+pybloomfilter.BloomFilter.from_base64 staticmethod ref.html
+pybloomfilter.BloomFilter.union method ref.html

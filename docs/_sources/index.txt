@@ -1,0 +1,113 @@
+.. Python BloomFilter documentation master file, created by
+   sphinx-quickstart on Wed Mar 31 16:25:58 2010.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Python BloomFilter's documentation!
+==============================================
+
+If you are here, you probably don't need to be reminded
+about the nature of a Bloom filter. If you need to learn
+more, just visit the `wikipedia page <http://en.wikipedia.org/wiki/Bloom_filter>`_
+to learn more. This module implements a Bloom filter in python
+that's fast and uses mmap files for better scalability.
+Did I mention that it's fast?
+
+Here's a quick example::
+    
+    from pybloomfilter import BloomFilter
+
+    bf = BloomFilter(10000000, 0.01, 'filter.bloom')
+
+    with open("/usr/share/dict/words") as f:
+        for word in f:
+            bf.add(word.rstrip())
+
+    print 'apple' in bf
+    #outputs True
+
+That wasn't so hard, was it? Now, there are a lot of other things
+we can do. For instance, let's say we want to create a similar
+filter with just a few pieces of fruit::
+
+    fruitbf = bf.copy_template("fruit.bloom")
+    fruitbf.update(("apple", "banana", "orange", "pear"))
+    print fruitbf.to_base64()
+    "eJzt2k13ojAUBuA9f8WFyofF5TWChlTHaPzqrlqFCtj6gQi/frqZM2N7aq3Gis59d2ye85KTRbhk"
+    "0lyu1NRmsQrgRda0I+wZCfXIaxuWv+jqDxA8vdaf21HIOSn1u6LRE0VL9Z/qghfbBmxZoHsqM3k8"
+    "N5XyPAxH2p22TJJoqwU9Q0y0dNDYrOHBIa3BwuznapG+KZZq69JUG0zu1tqI5weJKdpGq7PNJ6tB"
+    "GKmzcGWWy8o0FeNNYNZAQpSdJwajt7eRhJ2YM2NOkTnSsBOCGGKIIYbY2TA663GgWWyWfUwn3oIc"
+    "fyLYxeQwiF07RqBg9NgHrG5ba3jba5yl4zS2LtEMMcQQQwwxmRiBhPGOJOywIPafYhUwqnTvZOfY"
+    "Zu40HH/YxDexZojJwsx6ObDcT7D8vVOtJBxiAhD/AjMmjeF2Wnqd+5RrHdo4azPEzoANabiUhh0b"
+    "xBBDDDHEENsf8twlrizswEjDhnTbzWazbGKpQ5k07E9Ox2iFvXBZ2D9B7DawyqLFu5lshhhiiGUK"
+    "a4nUloa9yxkwR7XhgPPXYdhRIa77uDtnyvqaIXalGK02ufv3J36GmsnG4lquPnN9gJo1VNxqgYbt"
+    "ji/EC8s1PWG5fuVizW4Jox6/3o9XxBBDDLFbwcg9v/AwjrPHtTRsX34O01mxLw37bhCTjJk0+PLK"
+    "08HYd4MYYojdKmYnBfjsktEpySY2tGGZzWaIIfYDGB271Yaieaat/AaOkNKb"
+
+Reference
+------------
+
+All of the reference information is available below:
+
+.. toctree::
+   :maxdepth: 2
+
+   ref
+
+
+
+Why pybloomfilter
+---------------------
+
+As I already mentioned, there are a couple reasons to use this
+module:
+
+ * It natively uses `mmaped files <http://en.wikipedia.org/wiki/Mmap>`_.
+ * It natively does the set things you want a Bloom filter to do.
+ * It is Fast (see Benchmarks).
+
+Benchmarks
+---------------------
+
+Simple load and add speed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+I have a simple benchmark in `test/speedtest.py <http://code.google.com/p/python-bloom-filter/source/browse/tests/speedtest.py>`_ which compares
+this module to the good
+`pybloom module <http://github.com/jaybaird/python-bloomfilter/>`_::
+
+    (pybloom module)
+    pybloom load took 2.70 s/run
+    pybloom tests took 0.61 s/run
+    Errors: 0.25% positive 0.00% negative
+
+    (this module)
+    pybloomfilter load took 0.23 s/run [1200% faster]
+    pybloomfilter tests took 0.03 s/run [2000% faster]
+    Errors: 0.03% positive 0.00% negative
+
+In this test we just looked at adding words from a dictionary file,
+then testing to see if each word of another file was in the dictionary.
+
+Serialization
+^^^^^^^^^^^^^^^^^
+
+Since this package natively uses mmap files, **no serialization is needed**.
+Therefore, if you have to do a lot of moving between disks etc, this
+module is an obvious win.
+
+Install
+---------------------
+
+Unfortunately at the time I only support systems with a nice build environment
+(Linux, OS X, ..). However, I know people build Cython code on Win32 all the
+time, I just don't want to spend time to get it to work.
+So, to install on a computer with gcc:
+
+ 1. Download and install `Cython <http://www.cython.org/#download>`_.
+ 2. Download `the latest release <http://code.google.com/p/python-bloom-filter/downloads/list>`_.
+ 3. Untar the file
+ 4. Type $ "sudo python setup.py install"
+ 5. Done!
+
+
