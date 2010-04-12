@@ -29,6 +29,15 @@ setup(
   description = "A Bloom filter for Python built on mmap",
   license = "MIT License",
   ext_modules = ext_modules,
+  classifiers = [
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: C',
+        'Programming Language :: Cython',
+        'Programming Language :: Python',
+        'Topic :: Database :: Database Engines/Servers',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        ],
   **kwargs
 )
  
