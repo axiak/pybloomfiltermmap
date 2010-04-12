@@ -72,7 +72,7 @@ Benchmarks
 Simple load and add speed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-I have a simple benchmark in `test/speedtest.py <http://code.google.com/p/python-bloom-filter/source/browse/tests/speedtest.py>`_ which compares
+I have a simple benchmark in `test/speedtest.py <http://github.com/axiak/pybloomfiltermmap/blob/master/tests/speedtest.py>`_ which compares
 this module to the good
 `pybloom module <http://github.com/jaybaird/python-bloomfilter/>`_::
 
