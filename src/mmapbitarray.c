@@ -118,14 +118,16 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
 
 void mbarray_Destroy(MBArray * array)
 {
-    if (array) {
-        if (array->vector) {
+    if (array != NULL) {
+        if (array->vector != NULL) {
             if (munmap(array->vector, _mmap_size(array))) {
                 fprintf(stderr, "Unable to close mmap!\n");
             }
+            array->vector = NULL;
         }
         if (array->filename) {
             free((void *)array->filename);
+            array->filename = NULL;
         }
         free(array);
     }
