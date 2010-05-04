@@ -55,20 +55,28 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     array->preamblesize = ((int)ceil((double)array->preamblebytes / 256.0) * 256) / sizeof(DTYPE);
     array->preamblebytes = array->preamblesize * (sizeof(DTYPE));
 
-    array->size = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-    array->bytes = (int)ceil((double)num_bits / 8.0);
-
     if (errno) {
         mbarray_Destroy(array);
         return NULL;
     }
 
     filesize = _filesize(array->fd);
+    if (filesize > 50 && !num_bits) {
+        num_bits = _get_num_bits(array->fd);
+    }
+    array->size = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (int)ceil((double)num_bits / 8.0);
+
     if (filesize < 0) {
         mbarray_Destroy(array);
         return NULL;
     }
     else if (filesize && !_valid_magic(array->fd)) {
+        errno = EINVAL;
+        mbarray_Destroy(array);
+        return NULL;
+    }
+    else if (filesize && filesize < (array->bytes + array->preamblebytes - 1)) {
         errno = EINVAL;
         mbarray_Destroy(array);
         return NULL;
