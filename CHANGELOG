@@ -1,3 +1,7 @@
+0.1.18 2010-10-25)
+ - Fixed issue #5, wherein a call to open() returning an invalid fd would
+   cause a seg fault.                                                     [BUG]
+
 0.1.12 2010-4-5)
  - Added __len__ which gives a good estimate of how many elements were
    inserted [FEATURE]
