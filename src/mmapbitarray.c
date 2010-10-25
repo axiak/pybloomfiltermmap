@@ -38,6 +38,12 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     errno = 0;
     array->fd = open(file, oflag, perms);
 
+    if (array->fd < 0) {
+        errno = EINVAL;
+        mbarray_Destroy(array);
+        return NULL;
+    }
+
     fheaderlen = mbarray_HeaderLen(array);
     errno = 0;
     if (fheaderlen >= 0 && !(oflag && O_CREAT) && fheaderlen != header_len) {
