@@ -1,3 +1,7 @@
+0.1.20 2010-12-21)
+ - Changed prime number finder to use a standard double and add 1 to find
+   likely numbers in log(n) time.
+
 0.1.18 2010-10-25)
  - Fixed issue #5, wherein a call to open() returning an invalid fd would
    cause a seg fault.                                                     [BUG]
