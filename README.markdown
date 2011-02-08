@@ -5,7 +5,7 @@ correct library for Bloom Filters in Python.
 
 ## Docs
 
-You should probably read the docs online at <http://mike.axiak.net/python-bloom-filter/docs/html/>
+You should probably read the original docs online at <http://mike.axiak.net/python-bloom-filter/docs/html/>
 
 ## Overview
 
@@ -33,5 +33,5 @@ and you should be set.
 
 ## License
 
-See the LICENSE file. I am licensing it under the MIT License.
+See the LICENSE file. It's under the MIT License.
 

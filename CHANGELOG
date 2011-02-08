@@ -1,4 +1,8 @@
-0.1.22 2011-02-28)
+0.1.28 2011-03-12)
+ - Added check to ensure that the required permissions are available when
+   opening a file.                                                       [BUG]
+
+0.1.26 2011-03-07)
  - Added __dealloc__ to fix memory/resource leaks.                       [BUG]
  - Added .close() method to forcibly close a bloom filter object.        [FEATURE]
 

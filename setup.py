@@ -22,8 +22,9 @@ ext_modules = [Extension("pybloomfilter",
 
 setup(
   name = 'pybloomfiltermmap',
-  version = "0.1.26",
-  author = "Michael Axiak",
+<<<<<<< HEAD
+  version = "0.1.28",
+  author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",
   description = "A Bloom filter for Python built on mmap",
@@ -35,7 +36,6 @@ setup(
         'Programming Language :: C',
         'Programming Language :: Cython',
         'Programming Language :: Python',
-        'Topic :: Database :: Database Engines/Servers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
   **kwargs
