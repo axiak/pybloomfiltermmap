@@ -46,10 +46,11 @@ cdef class BloomFilter:
     For more information on what a bloom filter is, please read the Wikipedia article about it.  
     """
     cdef cbloomfilter.BloomFilter * _bf
+    cdef int _closed
 
     def __cinit__(self, capacity, error_rate, filename, perm=0755):
         cdef char * seeds
-
+        _closed = 0
         mode = "rw+"
         if filename is NoConstruct:
             return
@@ -103,34 +104,43 @@ cdef class BloomFilter:
 
     property hash_seeds:
         def __get__(self):
+            self._assert_open()
             result = array.array('I')
             result.fromstring((<char *>self._bf.hash_seeds)[:4 * self.num_hashes])
             return result
 
     property capacity:
         def __get__(self):
+            self._assert_open()
             return self._bf.max_num_elem
 
     property error_rate:
         def __get__(self):
+            self._assert_open()
             return self._bf.error_rate
 
     property num_hashes:
         def __get__(self):
+            self._assert_open()
             return self._bf.num_hashes
 
     property num_bits:
         def __get__(self):
+            self._assert_open()
             return self._bf.array.bits
 
     property name:
         def __get__(self):
+            self._assert_open()
             return self._bf.array.filename
 
     def fileno(self):
+        self._assert_open()
         return self._bf.array.fd
 
     def __repr__(self):
+        print "__REPR__"
+        self._assert_open()
         return '<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
             self._bf.max_num_elem, self._bf.error_rate, self._bf.num_hashes)
 
@@ -138,12 +148,15 @@ cdef class BloomFilter:
         return __repr__(self)
 
     def sync(self):
+        self._assert_open()
         cbloomfilter.mbarray_Sync(self._bf.array)
 
     def clear_all(self):
+        self._assert_open()
         cbloomfilter.mbarray_ClearAll(self._bf.array)
 
     def __contains__(self, item):
+        self._assert_open()
         cdef cbloomfilter.Key key
         if isinstance(item, str):
             key.shash = item
@@ -154,6 +167,7 @@ cdef class BloomFilter:
         return cbloomfilter.bloomfilter_Test(self._bf, &key) == 1
 
     def copy_template(self, filename, perm=0755):
+        self._assert_open()
         cdef BloomFilter copy = BloomFilter(0, 0, NoConstruct)
         if os.path.exists(filename):
             os.unlink(filename)
@@ -161,10 +175,12 @@ cdef class BloomFilter:
         return copy
 
     def copy(self, filename):
+        self._assert_open()
         shutil.copy(self._bf.array.filename, filename)
         return BloomFilter(self._bf.max_num_elem, self._bf.error_rate, filename, mode="rw", perm=0)
 
     def add(self, item):
+        self._assert_open()
         cdef cbloomfilter.Key key
         if isinstance(item, str):
             key.shash = item
@@ -179,37 +195,56 @@ cdef class BloomFilter:
         return bool(result)
 
     def update(self, iterable):
+        self._assert_open()
         for item in iterable:
             self.add(item)
 
     def __len__(self):
+        self._assert_open()
         if not self._bf.count_correct:
             raise IndeterminateCountError("Length of BloomFilter object is unavailable after intersection or union called.")
         return self._bf.elem_count
 
+    def close(self):
+        if self._closed == 0:
+            self._closed = 1
+            cbloomfilter.bloomfilter_Destroy(self._bf)
+            self._bf = NULL
+
     def __ior__(self, BloomFilter other):
+        self._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
         self._bf.count_correct = 0
         return self
 
     def union(self, BloomFilter other):
+        self._assert_open()
+        other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
         self._bf.count_correct = 0
         return self
 
     def __iand__(self, BloomFilter other):
+        self._assert_open()
+        other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
         self._bf.count_correct = 0
         return self
 
     def intersection(self, BloomFilter other):
+        self._assert_open()
+        other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
         self._bf.count_correct = 0
         return self
+
+    def _assert_open(self):
+        if self._closed != 0:
+            raise ValueError("I/O operation on closed file")
 
     def _assert_comparable(self, BloomFilter other):
         error = ValueError("The two BloomFilter objects are not the same type (hint, use copy_template)")
@@ -220,6 +255,7 @@ cdef class BloomFilter:
         return
 
     def to_base64(self):
+        self._assert_open()
         bfile = open(self.name, 'r')
         result = zlib.compress(zlib.compress(bfile.read(), 9).encode('base64')).encode('base64')
         bfile.close()
