@@ -102,6 +102,10 @@ cdef class BloomFilter:
             if self._bf is NULL:
                 python_exc.PyErr_NoMemory()
 
+    def __dealloc__(self):
+        cbloomfilter.bloomfilter_Destroy(self._bf)
+        self._bf = NULL        
+
     property hash_seeds:
         def __get__(self):
             self._assert_open()
