@@ -14,7 +14,7 @@ interface and a ste interface. As an example:
 
     >>> fruit = pybloomfilter.BloomFilter(100000, 0.1, '/tmp/words.bloom')
     >>> fruit.extend(('apple', 'pear', 'orange', 'apple'))
-    >>> len(bf)
+    >>> len(fruit)
     3
     >>> 'mike' in fruit
     False
