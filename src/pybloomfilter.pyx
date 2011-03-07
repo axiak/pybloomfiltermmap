@@ -1,4 +1,4 @@
-VERSION = (0, 1, 24)
+VERSION = (0, 1, 26)
 AUTHOR = "Michael Axiak"
 
 
