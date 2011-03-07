@@ -137,6 +137,11 @@ void mbarray_Destroy(MBArray * array)
             if (munmap(array->vector, _mmap_size(array))) {
                 fprintf(stderr, "Unable to close mmap!\n");
             }
+            if (array->fd >= 0) {
+                fsync(array->fd);
+                close(array->fd);
+                array->fd = -1;
+            }
             array->vector = NULL;
         }
         if (array->filename) {

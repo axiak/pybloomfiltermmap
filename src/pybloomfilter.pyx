@@ -1,4 +1,4 @@
-VERSION = (0, 1, 22)
+VERSION = (0, 1, 24)
 AUTHOR = "Michael Axiak"
 
 
@@ -143,7 +143,6 @@ cdef class BloomFilter:
         return self._bf.array.fd
 
     def __repr__(self):
-        print "__REPR__"
         self._assert_open()
         return '<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
             self._bf.max_num_elem, self._bf.error_rate, self._bf.num_hashes)
