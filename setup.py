@@ -22,12 +22,11 @@ ext_modules = [Extension("pybloomfilter",
 
 setup(
   name = 'pybloomfiltermmap',
-<<<<<<< HEAD
-  version = "0.1.28",
+  version = "0.2.0",
   author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",
-  description = "A Bloom filter for Python built on mmap",
+  description = "A Bloom filter (bloomfilter) for Python built on mmap",
   license = "MIT License",
   ext_modules = ext_modules,
   classifiers = [
