@@ -58,7 +58,7 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     array->preamblebytes = MBAMAGICSIZE + sizeof(BTYPE) + sizeof(header_len) + header_len;
 
     /* This size is using 256-byte alignment so that we can use pretty much any base 2 data type */
-    array->preamblesize = ((int)ceil((double)array->preamblebytes / 256.0) * 256) / sizeof(DTYPE);
+    array->preamblesize = ((size_t)ceil((double)array->preamblebytes / 256.0) * 256) / sizeof(DTYPE);
     array->preamblebytes = array->preamblesize * (sizeof(DTYPE));
 
     if (errno) {
