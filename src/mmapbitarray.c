@@ -26,8 +26,7 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
 {
     errno = 0;
     MBArray * array = (MBArray *)malloc(sizeof(MBArray));
-    int filesize;
-    int32_t fheaderlen;
+    int filesize = 0;
 
     if (!array || errno) {
         return NULL;
@@ -35,24 +34,64 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
 
     array->filename = NULL;
     array->vector = NULL;
+    array->fd = -1;
     errno = 0;
-    array->fd = open(file, oflag, perms);
+    
+    if (file) {
+        array->fd = open(file, oflag, perms);
 
-    if (array->fd < 0) {
-        errno = EINVAL;
+        if (array->fd < 0) {
+            mbarray_Destroy(array);
+            errno = EINVAL;
+            return NULL;
+        }
+
+        int fheaderlen = mbarray_HeaderLen(array);
+        errno = 0;
+        if (fheaderlen >= 0 && !(oflag && O_CREAT) && fheaderlen != header_len) {
+            mbarray_Destroy(array);
+            errno = EINVAL;
+            return NULL;
+        }
+        if (fheaderlen >= 0) {
+            header_len = fheaderlen;
+        }
+
+        filesize = _filesize(array->fd);
+        if (filesize < 0) {
+            mbarray_Destroy(array);
+            return NULL;
+        }
+        if (filesize > 0) {
+            if (!num_bits) {
+                num_bits = _get_num_bits(array->fd);
+            } else if (_get_num_bits(array->fd) != num_bits) {
+                mbarray_Destroy(array);
+                errno = EINVAL;
+                return NULL;
+            }
+        }
+    } else if (!num_bits || !header_len) {
         mbarray_Destroy(array);
+        errno = EINVAL;
         return NULL;
     }
 
-    fheaderlen = mbarray_HeaderLen(array);
-    errno = 0;
-    if (fheaderlen >= 0 && !(oflag && O_CREAT) && fheaderlen != header_len) {
+#ifndef MAP_ANONYMOUS
+#ifndef MAP_ANON
+    if (array->fd == -1) {
+        mbarray_destroy(array);
         errno = EINVAL;
+        return NULL
+    }
+#else
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#endif
+
+    if (errno) {
         mbarray_Destroy(array);
         return NULL;
-    }
-    else if (fheaderlen >= 0) {
-        header_len = fheaderlen;
     }
 
     array->preamblebytes = MBAMAGICSIZE + sizeof(BTYPE) + sizeof(header_len) + header_len;
@@ -60,34 +99,16 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     /* This size is using 256-byte alignment so that we can use pretty much any base 2 data type */
     array->preamblesize = ((size_t)ceil((double)array->preamblebytes / 256.0) * 256) / sizeof(DTYPE);
     array->preamblebytes = array->preamblesize * (sizeof(DTYPE));
-
-    if (errno) {
-        mbarray_Destroy(array);
-        return NULL;
-    }
-
-    filesize = _filesize(array->fd);
-    if (filesize > 50 && !num_bits) {
-        num_bits = _get_num_bits(array->fd);
-    }
     array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
     array->bytes = (size_t)ceil((double)num_bits / 8.0);
 
-    if (filesize < 0) {
+    if (filesize > 0 && (!_valid_magic(array->fd) || (filesize < (array->bytes + array->preamblebytes - 1)))) {
         mbarray_Destroy(array);
-        return NULL;
-    }
-    else if (filesize && !_valid_magic(array->fd)) {
         errno = EINVAL;
-        mbarray_Destroy(array);
         return NULL;
     }
-    else if (filesize && filesize < (array->bytes + array->preamblebytes - 1)) {
-        errno = EINVAL;
-        mbarray_Destroy(array);
-        return NULL;
-    }
-    else if (!filesize) {
+
+    if (array->fd != -1 && !filesize) {
         if (!(oflag & O_CREAT) || (!num_bits) || _initialize_file(array->fd, array->bytes + array->preamblebytes - 1, num_bits, header, header_len)) {
             if (!errno) {
                 errno = ENOENT;
@@ -96,36 +117,33 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
             return NULL;
         }
     }
-    else {
-        if (!num_bits) {
-            num_bits = _get_num_bits(array->fd);
-            array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-            array->bytes = (size_t)ceil((double)num_bits / 8.0);
-        }
-        else if (_get_num_bits(array->fd) != num_bits) {
-            mbarray_Destroy(array);
-            errno = EINVAL;
-            return NULL;
-        }
-    }
 
+    int flags = MAP_SHARED;
+
+#ifdef MAP_ANONYMOUS
+    if (array->fd == -1) {
+        flags |= MAP_ANONYMOUS;
+    }
+#endif
     errno = 0;
     array->vector = (DTYPE *)mmap(NULL,
                                   _mmap_size(array),
                                   PROT_READ | PROT_WRITE,
-                                  MAP_SHARED, 
+                                  flags, 
                                   array->fd,
                                   0);
     if (errno || !array->vector) {
         mbarray_Destroy(array);
         return NULL;
     }
-    array->filename = (char *)malloc(strlen(file) + 1);
-    if (!array->filename) {
-        mbarray_Destroy(array);
-        return NULL;
+    if (file) {
+        array->filename = (char *)malloc(strlen(file) + 1);
+        if (!array->filename) {
+            mbarray_Destroy(array);
+            return NULL;
+        }
+        strcpy((char *)array->filename, file);
     }
-    strcpy((char *)array->filename, file);
     array->bits = num_bits;
     return array;
 }
@@ -181,6 +199,10 @@ char * mbarray_Header(char * dest, MBArray * array, int maxlen)
 
 int mbarray_Sync(MBArray * array)
 {
+    /* ignore syncs for anonymous files */
+    if (array->fd == -1) {
+        return 0;
+    }
     if (!array || !array->vector) {
         errno = EINVAL;
         return 1;
@@ -280,6 +302,10 @@ MBArray * mbarray_Xor_Ternary(MBArray * dest, MBArray * a, MBArray * b)
 
 MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms)
 {
+    if (src->fd == -1) {
+        errno = EINVAL;
+        return NULL;
+    }
     int header_len = mbarray_HeaderLen(src);
     char * header;
 
@@ -312,10 +338,12 @@ MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms)
                           perms);
 }
 
-
-/*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
 int mbarray_FileSize(MBArray * array)
 {
+    if (array->fd == -1) {
+        errno = EINVAL;
+        return 1;
+    }
     return _filesize(array->fd);
 }
 
@@ -327,6 +355,10 @@ char * mbarray_CharData(MBArray * array)
 
 int mbarray_Update(MBArray * array, char * data, int size)
 {
+    if (array->fd == -1) {
+        errno = EINVAL;
+        return 1;
+    }
     memcpy(array->vector, data, size);
     array->bits = _get_num_bits(array->fd);
     array->size = (size_t)ceil((double)array->bits / sizeof(DTYPE) / 8.0);

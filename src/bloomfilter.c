@@ -40,7 +40,7 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
        By calling mbarray_Header, we copy that header data
        back into this BloomFilter object.
     */
-    if (mbarray_Header((char *)bf, array, sizeof(BloomFilter)) == NULL) {
+    if (file && mbarray_Header((char *)bf, array, sizeof(BloomFilter)) == NULL) {
         bloomfilter_Destroy(bf);
         mbarray_Destroy(array);
         return NULL;
@@ -53,6 +53,10 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
     return bf;
 }
 
+BloomFilter* bloomfilter_CreateAnonymous(size_t max_num_elem, double error_rate, BTYPE num_bits, int* hash_seeds, int num_hashes)
+{
+    return bloomfilter_Create(max_num_elem, error_rate, NULL, num_bits, 0, 0, hash_seeds, num_hashes);
+}
 
 void bloomfilter_Destroy(BloomFilter * bf)
 {

@@ -60,7 +60,6 @@ MBArray * mbarray_Xor_Ternary(MBArray * dest, MBArray * a, MBArray * b);
 MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms);
 
 int mbarray_Update(MBArray * array, char * data, int size);
-/*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
 
 int mbarray_FileSize(MBArray * array);
 

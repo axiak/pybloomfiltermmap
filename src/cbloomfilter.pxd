@@ -39,9 +39,14 @@ cdef extern from "bloomfilter.h":
 
      BloomFilter * bloomfilter_Create(long max_num_elem,
                                       double error_rate,
-                                      char * fname, long num_bits,
+                                      char * name, long num_bits,
                                       int oflags, int perms,
                                       int * hash_seeds, int num_hashes)
+     BloomFilter* bloomfilter_CreateAnonymous(long max_num_elem, 
+                                              double error_rate, 
+                                              long num_bits, 
+                                              int* hash_seeds, 
+                                              int num_hashes)
      void bloomfilter_Destroy(BloomFilter * bf)
      int bloomfilter_Add(BloomFilter * bf, Key * key)
      int bloomfilter_Test(BloomFilter * bf, Key * key)

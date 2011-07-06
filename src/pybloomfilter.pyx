@@ -47,15 +47,21 @@ cdef class BloomFilter:
     """
     cdef cbloomfilter.BloomFilter * _bf
     cdef int _closed
+    cdef int _anonymous
 
     def __cinit__(self, capacity, error_rate, filename, perm=0755):
         cdef char * seeds
-        _closed = 0
+        self._closed = 0
+        self._anonymous = 0
         mode = "rw+"
         if filename is NoConstruct:
             return
 
         if capacity is ReadFile:
+
+            if not filename:
+                raise ValueError('A filename must be provided.')
+
             mode = "rw"
             capacity = 0
             if not os.path.exists(filename):
@@ -66,8 +72,11 @@ cdef class BloomFilter:
 
         mode = construct_mode(mode)
 
-
         if not mode & os.O_CREAT:
+        
+            if not filename:
+                raise ValueError('A filename must be provided.')
+
             if os.path.exists(filename):
                 self._bf = cbloomfilter.bloomfilter_Create(capacity,
                                                            error_rate,
@@ -82,7 +91,7 @@ cdef class BloomFilter:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
         else:
-            if os.path.exists(filename):
+            if filename and os.path.exists(filename):
                 os.unlink(filename)
             num_bits = 5 * math.ceil((capacity * math.log(error_rate)) / math.log(1.0 /
                                                                   (math.pow(2.0,
@@ -94,14 +103,18 @@ cdef class BloomFilter:
             test = hash_seeds.tostring()
             seeds = test
 
-            self._bf = cbloomfilter.bloomfilter_Create(capacity,
-                                                       error_rate,
-                                                       filename,
-                                                       num_bits,
-                                                       mode,
-                                                       perm,
-                                                       <int *>seeds,
-                                                       num_hashes)
+            if not filename:
+                self._bf = cbloomfilter.bloomfilter_CreateAnonymous(capacity, error_rate, num_bits, <int*>seeds, num_hashes);
+                self._anonymous = 1
+            else:
+                self._bf = cbloomfilter.bloomfilter_Create(capacity,
+                                                           error_rate,
+                                                           filename,
+                                                           num_bits,
+                                                           mode,
+                                                           perm,
+                                                           <int *>seeds,
+                                                           num_hashes)
             if self._bf is NULL:
                 cpython.PyErr_NoMemory()
 
@@ -139,7 +152,7 @@ cdef class BloomFilter:
     property name:
         def __get__(self):
             self._assert_open()
-            return self._bf.array.filename
+            return 'anonymous' if self._anonymous else self._bf.array.filename
 
     def fileno(self):
         self._assert_open()
@@ -174,16 +187,24 @@ cdef class BloomFilter:
 
     def copy_template(self, filename, perm=0755):
         self._assert_open()
+
+        if self._anonymous:
+            raise RuntimeError('Anonymous mapped files cannot be copied.')
+
         cdef BloomFilter copy = BloomFilter(0, 0, NoConstruct)
         if os.path.exists(filename):
             os.unlink(filename)
         copy._bf = cbloomfilter.bloomfilter_Copy_Template(self._bf, filename, perm)
         return copy
 
-    def copy(self, filename):
+    def copy(self, filename, perm=0755):
         self._assert_open()
+
+        if self._anonymous:
+            raise RuntimeError('Anonymous mapped files cannot be copied.')
+
         shutil.copy(self._bf.array.filename, filename)
-        return BloomFilter(self._bf.max_num_elem, self._bf.error_rate, filename, mode="rw", perm=0)
+        return BloomFilter(self._bf.max_num_elem, self._bf.error_rate, filename, perm)
 
     def add(self, item):
         self._assert_open()

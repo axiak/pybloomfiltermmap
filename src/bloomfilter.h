@@ -29,22 +29,13 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
                                 const char * file, BTYPE num_bits, int oflags, int perms,
                                 int *hash_seeds, int num_hashes);
 
+BloomFilter *bloomfilter_CreateAnonymous(size_t max_num_elem,
+		                                 double error_rate, 
+										 BTYPE num_bits, 
+										 int* hash_seeds, 
+										 int num_hashes);
+
 void bloomfilter_Destroy(BloomFilter * bf);
-
-MBArray * mbarray_And_Ternary(MBArray * dest, MBArray * a, MBArray * b);
-
-MBArray * mbarray_Or_Ternary(MBArray * dest, MBArray * a, MBArray * b);
-
-MBArray * mbarray_Xor_Ternary(MBArray * dest, MBArray * a, MBArray * b);
-
-MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms);
-
-int mbarray_Update(MBArray * array, char * data, int size);
-/*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
-
-int mbarray_FileSize(MBArray * array);
-
-char * mbarray_CharData(MBArray * array);
 
 int bloomfilter_Update(BloomFilter * bf, char * data, int size);
 
