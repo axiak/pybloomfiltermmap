@@ -29,11 +29,8 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
                                 const char * file, BTYPE num_bits, int oflags, int perms,
                                 int *hash_seeds, int num_hashes);
 
-BloomFilter *bloomfilter_CreateAnonymous(size_t max_num_elem,
-		                                 double error_rate, 
-										 BTYPE num_bits, 
-										 int* hash_seeds, 
-										 int num_hashes);
+BloomFilter *bloomfilter_CreateAnonymous(size_t max_num_elem, double error_rate, 
+                                         BTYPE num_bits, int* hash_seeds, int num_hashes);
 
 void bloomfilter_Destroy(BloomFilter * bf);
 
