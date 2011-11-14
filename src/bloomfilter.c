@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include "md5.h"
 
 #include "bloomfilter.h"
 
@@ -112,6 +113,8 @@ BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int 
     return bf;
 }
 
+/*
+CODE FOR djb HASH...
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     register uint32_t result = 5381 ^ hash_seed;
     register unsigned char * ptr = (unsigned char *)key->shash;
@@ -125,6 +128,63 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 uint32_t _hash_long(uint32_t hash_seed, Key * key) {
     return 5381 + (33 * (key->nhash ^ hash_seed));
 }
+*/
+
+/*
+
+CODE TO USE SHA512..
+
+#include <openssl/evp.h>
+
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+    EVP_MD_CTX ctx;
+    unsigned char result_buffer[64];
+    uint32_t result = 0;
+    unsigned int result_size = sizeof(result);
+
+    EVP_MD_CTX_init(&ctx);
+
+    EVP_DigestInit_ex(&ctx, EVP_sha512(), NULL);
+    EVP_DigestUpdate(&ctx, (const unsigned char *)&hash_seed, sizeof(hash_seed));
+    EVP_DigestUpdate(&ctx, (const unsigned char *)key->shash, key->nhash);
+    EVP_DigestFinal_ex(&ctx, &result_buffer, NULL);
+    return *(uint32_t *)result_buffer;
+}
+
+uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+    Key newKey = {
+        .shash = (char *)key->nhash,
+        .nhash = sizeof(key->nhash)
+    };
+
+    return _hash_char(hash_seed, &newKey);
+}
+*/
+
+
+#include "md5.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+    md5_state_t state;
+    md5_byte_t result[16];
+    int i;
+
+    md5_init(&state);
+    md5_append(&state, (md5_byte_t *)&hash_seed, sizeof(uint32_t));
+    md5_append(&state, (md5_byte_t *)key->shash, key->nhash);
+    md5_finish(&state, result);
+    return *(uint32_t *)(&result[4]);
+}
+
+uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+    Key newKey = {
+        .shash = (char *)key->nhash,
+        .nhash = sizeof(key->nhash)
+    };
+
+    return _hash_char(hash_seed, &newKey);
+}
+
+
 
 
 #if 0

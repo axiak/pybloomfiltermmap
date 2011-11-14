@@ -3,6 +3,7 @@ from distutils.extension import Extension
 
 ext_files = ["src/mmapbitarray.c",
              "src/bloomfilter.c",
+             "src/md5.c",
              "src/primetester.c",
              ]
 
@@ -22,7 +23,7 @@ ext_modules = [Extension("pybloomfilter",
 
 setup(
   name = 'pybloomfiltermmap',
-  version = "0.2.0",
+  version = "0.2.2",
   author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",

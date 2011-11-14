@@ -43,7 +43,7 @@ class IndeterminateCountError(ValueError):
 cdef class BloomFilter:
     """
     The BloomFilter class implements a bloom filter that uses mmap'd files.
-    For more information on what a bloom filter is, please read the Wikipedia article about it.  
+    For more information on what a bloom filter is, please read the Wikipedia article about it.
     """
     cdef cbloomfilter.BloomFilter * _bf
     cdef int _closed
@@ -84,11 +84,16 @@ cdef class BloomFilter:
         else:
             if os.path.exists(filename):
                 os.unlink(filename)
-            num_bits = 5 * math.ceil((capacity * math.log(error_rate)) / math.log(1.0 /
-                                                                  (math.pow(2.0,
-                                                                            math.log(2.0)))))
-            num_bits = cbloomfilter.next_prime(num_bits)
-            num_hashes = int(math.ceil(math.log(2.0) * num_bits / capacity))
+
+            num_hashes = int(math.ceil(math.log(1.0 / error_rate, 2.0)))
+            bits_per_hash = int(math.ceil(
+                    (2.0 * capacity * abs(math.log(error_rate))) /
+                    (num_hashes * (math.log(2) ** 2))))
+
+            num_bits = num_hashes * bits_per_hash
+            #num_bits = cbloomfilter.next_prime(num_bits)
+            #num_hashes = int(math.ceil(math.log(2.0) * num_bits / capacity))
+
             hash_seeds = array.array('I')
             hash_seeds.extend([random.getrandbits(32) for i in range(num_hashes)])
             test = hash_seeds.tostring()
@@ -107,7 +112,7 @@ cdef class BloomFilter:
 
     def __dealloc__(self):
         cbloomfilter.bloomfilter_Destroy(self._bf)
-        self._bf = NULL        
+        self._bf = NULL
 
     property hash_seeds:
         def __get__(self):
@@ -127,6 +132,11 @@ cdef class BloomFilter:
             return self._bf.error_rate
 
     property num_hashes:
+        def __get__(self):
+            self._assert_open()
+            return self._bf.num_hashes
+
+    property num_slices:
         def __get__(self):
             self._assert_open()
             return self._bf.num_hashes
@@ -167,6 +177,8 @@ cdef class BloomFilter:
         if isinstance(item, str):
             key.shash = item
             key.nhash = len(item)
+            #key.shash = NULL
+            #key.nhash = hash(item)
         else:
             key.shash = NULL
             key.nhash = hash(item)

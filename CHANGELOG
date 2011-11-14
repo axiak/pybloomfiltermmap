@@ -1,3 +1,7 @@
+0.2.20 2011-11-13)
+ - Fixed hashing to use md5 hash and change the bit computation to pass
+   accuracy test.                                                        [BUG]
+
 0.1.28 2011-03-12)
  - Added check to ensure that the required permissions are available when
    opening a file.                                                       [BUG]

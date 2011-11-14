@@ -1,3 +1,4 @@
+import sys
 import os
 import tempfile
 import pybloomfilter
@@ -6,6 +7,11 @@ WORDS_FILE = os.path.join(os.path.dirname(__file__), 'words')
 TEST_WORDS = os.path.join(os.path.dirname(__file__), 'testwords')
 
 def main():
+    global pybloomfilter
+
+    if len(sys.argv) > 1 and sys.argv[1].lower() == '-pybloom':
+        import pybloom
+        pybloomfilter = pybloom
 
     with open(WORDS_FILE) as base_file:
         with open(TEST_WORDS) as test_file:
@@ -21,7 +27,10 @@ def main():
 
 def test_errors(error_rate, filter_size, correct_overlap, num_test_words):
     bloom_file = tempfile.NamedTemporaryFile()
-    bf = pybloomfilter.BloomFilter(filter_size, error_rate, bloom_file.name)
+    try:
+        bf = pybloomfilter.BloomFilter(filter_size, error_rate, bloom_file.name)
+    except TypeError:
+        bf = pybloomfilter.BloomFilter(filter_size, error_rate)
 
     with open(WORDS_FILE) as source_file:
         with open(TEST_WORDS) as test_file:
@@ -43,7 +52,7 @@ def run_test(bf, source_file, test_file, correct_overlap, num_test_words, error_
     print "Specified: %f; Measured: %f; num_hashes: %d, num_bits: %d" % (
         error_rate,
         actual_error_rate,
-        bf.num_hashes,
+        bf.num_slices,
         bf.num_bits,
         )
 
