@@ -177,7 +177,7 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 
 uint32_t _hash_long(uint32_t hash_seed, Key * key) {
     Key newKey = {
-        .shash = (char *)key->nhash,
+        .shash = (char *)&key->nhash,
         .nhash = sizeof(key->nhash)
     };
 
