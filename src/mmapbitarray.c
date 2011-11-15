@@ -70,8 +70,8 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     if (filesize > 50 && !num_bits) {
         num_bits = _get_num_bits(array->fd);
     }
-    array->size = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-    array->bytes = (int)ceil((double)num_bits / 8.0);
+    array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (size_t)ceil((double)num_bits / 8.0);
 
     if (filesize < 0) {
         mbarray_Destroy(array);
@@ -99,8 +99,8 @@ MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header,
     else {
         if (!num_bits) {
             num_bits = _get_num_bits(array->fd);
-            array->size = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-            array->bytes = (int)ceil((double)num_bits / 8.0);
+            array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+            array->bytes = (size_t)ceil((double)num_bits / 8.0);
         }
         else if (_get_num_bits(array->fd) != num_bits) {
             mbarray_Destroy(array);
@@ -329,8 +329,8 @@ int mbarray_Update(MBArray * array, char * data, int size)
 {
     memcpy(array->vector, data, size);
     array->bits = _get_num_bits(array->fd);
-    array->size = (int)ceil((double)array->bits / sizeof(DTYPE) / 8.0);
-    array->bytes = (int)ceil((double)array->bits / 8.0);
+    array->size = (size_t)ceil((double)array->bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (size_t)ceil((double)array->bits / 8.0);
     return 0;
 }
 
