@@ -32,8 +32,9 @@ enum {
 
 
 /* Functions */
+MBArray * mbarray_Create_Malloc(BTYPE num_bits);
 
-MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header, int header_len, int oflag, int perms);
+MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * header, int header_len, int oflag, int perms);
 
 void mbarray_Destroy(MBArray * array);
 

@@ -22,7 +22,45 @@ static inline size_t _mmap_size(MBArray * array);
 static inline int _assert_comparable(MBArray * array1, MBArray * array2);
 /*    __attribute__((always_inline));;*/
 
-MBArray * mbarray_Create(BTYPE num_bits, const char * file, const char * header, int32_t header_len, int oflag, int perms)
+MBArray * mbarray_Create_Malloc(BTYPE num_bits)
+{
+    // Try to allocate space for a MBArray struct
+    errno = 0;
+    MBArray * array = (MBArray *)malloc(sizeof(MBArray));
+
+    // And ensure that it was constructed properly
+    if (!array || errno) {
+        return NULL;
+    }
+
+    // Since we're not using a real mmap file for this instance,
+    // we can get away with setting a bunch of the internal vars
+    // to be reasonable default values
+    array->filename      = NULL;
+    array->vector        = NULL;
+	array->fd            = 0;
+	array->preamblesize  = 0;
+	array->preamblebytes = 0;
+
+    // This is how many DTYPEs there are, and how many bytes there
+    // are in this particular structure. As well as the number of 
+    // bits
+    array->size  = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (int)ceil((double)num_bits / 8.0);
+    array->bits  = num_bits;
+
+    // Now try to allocate enough space for our array
+    errno = 0;
+	array->vector = (DTYPE *)malloc(array->bytes);
+    if (errno || !array->vector) {
+        mbarray_Destroy(array);
+        return NULL;
+    }
+
+    return array;
+}
+
+MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * header, int32_t header_len, int oflag, int perms)
 {
     errno = 0;
     MBArray * array = (MBArray *)malloc(sizeof(MBArray));
@@ -134,15 +172,22 @@ void mbarray_Destroy(MBArray * array)
 {
     if (array != NULL) {
         if (array->vector != NULL) {
-            if (munmap(array->vector, _mmap_size(array))) {
-                fprintf(stderr, "Unable to close mmap!\n");
+            if (array->filename == NULL) {
+                // This is the case where we initialized the vector
+                // with malloc, and not mmap. As such, be free!
+				free((void*)array->vector);
+				array->vector = NULL;
+            } else {
+                if (munmap(array->vector, _mmap_size(array))) {
+                    fprintf(stderr, "Unable to close mmap!\n");
+                }
+                if (array->fd >= 0) {
+                    fsync(array->fd);
+                    close(array->fd);
+                    array->fd = -1;
+                }
+                array->vector = NULL;
             }
-            if (array->fd >= 0) {
-                fsync(array->fd);
-                close(array->fd);
-                array->fd = -1;
-            }
-            array->vector = NULL;
         }
         if (array->filename) {
             free((void *)array->filename);
@@ -303,7 +348,7 @@ MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms)
         return NULL;
     }
 
-    return mbarray_Create(
+    return mbarray_Create_Mmap(
                           src->bits,
                           filename,
                           header,
@@ -434,7 +479,7 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    array = mbarray_Create(
+    array = mbarray_Create_Mmap(
                            atol(argv[2]),
                            argv[1],
                            "",
@@ -465,7 +510,7 @@ int main(int argc, char ** argv)
     }
 
     /* Open file */
-    array = mbarray_Create(
+    array = mbarray_Create_Mmap(
                            0,
                            argv[1],
                            "",

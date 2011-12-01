@@ -69,7 +69,7 @@ cdef class BloomFilter:
 
         if not mode & os.O_CREAT:
             if os.path.exists(filename):
-                self._bf = cbloomfilter.bloomfilter_Create(capacity,
+                self._bf = cbloomfilter.bloomfilter_Create_Mmap(capacity,
                                                            error_rate,
                                                            filename,
                                                            0,
@@ -82,7 +82,9 @@ cdef class BloomFilter:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
         else:
-            if os.path.exists(filename):
+            # Make sure that if the filename is defined, that the
+            # file exists
+            if filename and os.path.exists(filename):
                 os.unlink(filename)
 
             num_hashes = int(math.ceil(math.log(1.0 / error_rate, 2.0)))
@@ -99,12 +101,21 @@ cdef class BloomFilter:
             test = hash_seeds.tostring()
             seeds = test
 
-            self._bf = cbloomfilter.bloomfilter_Create(capacity,
+            # If a filename is provided, we should make a mmap-file
+            # backed bloom filter. Otherwise, it will be malloc
+            if filename:
+                self._bf = cbloomfilter.bloomfilter_Create_Mmap(capacity,
                                                        error_rate,
                                                        filename,
                                                        num_bits,
                                                        mode,
                                                        perm,
+                                                       <int *>seeds,
+                                                       num_hashes)
+            else:
+                self._bf = cbloomfilter.bloomfilter_Create_Malloc(capacity,
+                                                       error_rate,
+                                                       num_bits,
                                                        <int *>seeds,
                                                        num_hashes)
             if self._bf is NULL:
