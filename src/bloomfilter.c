@@ -192,7 +192,7 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key) {
 }
 */
 
-
+/*
 #include "md5.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     md5_state_t state;
@@ -214,8 +214,18 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key) {
 
     return _hash_char(hash_seed, &newKey);
 }
+//*/
 
+//*
+#include "superfast.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+	return SuperFastHash(key->shash, key->nhash, hash_seed);
+}
 
+uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+	return SuperFastHash((char*)key->nhash, sizeof(key->nhash), hash_seed);
+}
+//*/
 
 
 #if 0

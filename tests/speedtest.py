@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import os
 import tempfile
 import time
@@ -68,14 +70,14 @@ def run_test():
         start = time.time()
         if NUM:
             t = timeit.Timer(lambda : get_and_add_words(creator, dict_wordlist))
-            print "%s took %0.2f s/run" % (
+            print "%s took %0.5f s/run" % (
                 creator,
                 t.timeit(NUM) / float(NUM))
         bf = get_and_add_words(creator, dict_wordlist)
 
         if NUM:
             t = timeit.Timer(lambda : check_words(bf, test_wordlist))
-            print "%s took %0.2f s/run" % (
+            print "%s took %0.5f s/run" % (
                 creator,
                 t.timeit(NUM) / float(NUM))
 
