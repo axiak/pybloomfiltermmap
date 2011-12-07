@@ -25,8 +25,8 @@ BloomFilter *bloomfilter_Create_Malloc(size_t max_num_elem, double error_rate,
     bf->bf_version = BF_CURRENT_VERSION;
     bf->elem_count = 0;
     bf->array = NULL;
-    memset(bf->reserved, sizeof(uint32_t) * 32, 0);
-    memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
+    memset(bf->reserved, 0, sizeof(uint32_t) * 32);
+    memset(bf->hash_seeds, 0, sizeof(uint32_t) * 256);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
     array = mbarray_Create_Malloc(num_bits);
     if (!array) {
@@ -57,8 +57,8 @@ BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
     bf->bf_version = BF_CURRENT_VERSION;
     bf->elem_count = 0;
     bf->array = NULL;
-    memset(bf->reserved, sizeof(uint32_t) * 32, 0);
-    memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
+    memset(bf->reserved, 0,  sizeof(uint32_t) * 32);
+    memset(bf->hash_seeds, 0, sizeof(uint32_t) * 256);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
     array = mbarray_Create_Mmap(num_bits, file, (char *)bf, sizeof(BloomFilter), oflags, perms);
     if (!array) {

@@ -5,7 +5,7 @@ __VERSION__ = VERSION
 
 
 cimport cbloomfilter
-cimport python_exc
+cimport cpython
 
 import random
 import os
@@ -121,7 +121,7 @@ cdef class BloomFilter:
                                                        <int *>seeds,
                                                        num_hashes)
             if self._bf is NULL:
-                python_exc.PyErr_NoMemory()
+                cpython.PyErr_NoMemory()
 
     def __dealloc__(self):
         cbloomfilter.bloomfilter_Destroy(self._bf)
