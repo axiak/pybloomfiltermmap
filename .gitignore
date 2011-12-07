@@ -1,3 +1,4 @@
+pybloomfilter.so
 build/
 dist/
 docs/_build

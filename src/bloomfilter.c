@@ -144,6 +144,16 @@ BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int 
     return bf;
 }
 
+
+uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+    Key newKey = {
+        .shash = (char *)&key->nhash,
+        .nhash = sizeof(key->nhash)
+    };
+
+    return _hash_char(hash_seed, &newKey);
+}
+
 /*
 CODE FOR djb HASH...
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
@@ -155,13 +165,6 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     }
     return result;
 }
-
-uint32_t _hash_long(uint32_t hash_seed, Key * key) {
-    return 5381 + (33 * (key->nhash ^ hash_seed));
-}
-*/
-
-/*
 
 CODE TO USE SHA512..
 
@@ -182,17 +185,8 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     return *(uint32_t *)result_buffer;
 }
 
-uint32_t _hash_long(uint32_t hash_seed, Key * key) {
-    Key newKey = {
-        .shash = (char *)key->nhash,
-        .nhash = sizeof(key->nhash)
-    };
+CODE TO USE md5sum
 
-    return _hash_char(hash_seed, &newKey);
-}
-*/
-
-/*
 #include "md5.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     md5_state_t state;
@@ -205,28 +199,13 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     md5_finish(&state, result);
     return *(uint32_t *)(&result[4]);
 }
+*/
 
-uint32_t _hash_long(uint32_t hash_seed, Key * key) {
-    Key newKey = {
-        .shash = (char *)&key->nhash,
-        .nhash = sizeof(key->nhash)
-    };
-
-    return _hash_char(hash_seed, &newKey);
-}
-//*/
-
-//*
+/* Code for SuperFast */
 #include "superfast.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 	return SuperFastHash(key->shash, key->nhash, hash_seed);
 }
-
-uint32_t _hash_long(uint32_t hash_seed, Key * key) {
-	return SuperFastHash((char*)key->nhash, sizeof(key->nhash), hash_seed);
-}
-//*/
-
 
 #if 0
 int main(int argc, char **argv)

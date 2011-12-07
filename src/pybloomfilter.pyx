@@ -190,8 +190,6 @@ cdef class BloomFilter:
         if isinstance(item, str):
             key.shash = item
             key.nhash = len(item)
-            #key.shash = NULL
-            #key.nhash = hash(item)
         else:
             key.shash = NULL
             key.nhash = hash(item)
