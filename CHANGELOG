@@ -1,4 +1,11 @@
-0.2.20 2011-11-13)
+0.3.1 2011-12-07)
+ - Fixed casting of size_t for very large bloom filters.                 [BUG]
+ - Added option to use standard memory (rather than mmap) to back the bloom filter.
+   (Specify None or '' as the argument to file name.)                    [FEATURE]
+ - Changed hash to use a "superfast" hash rather than md5 since md5 is
+   unnecessarily slow.                                                   [FEATURE]
+
+0.2.0 2011-11-13)
  - Fixed hashing to use md5 hash and change the bit computation to pass
    accuracy test.                                                        [BUG]
 
