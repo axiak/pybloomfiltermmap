@@ -1,0 +1,17 @@
+#!/bin/bash
+cd $(dirname "$0")
+make html
+
+TEMPFILE=$(tempfile)
+rm -f $TEMPFILE
+mkdir $TEMPFILE
+cp -r ./_build/html/* "$TEMPFILE"
+cd ../
+git stash
+git checkout gh-pages
+rm -rf *
+cp -r "$TEMPFILE/"* ./
+git add .
+git commit -m "Updated documents build"
+git checkout master
+git stash pop
