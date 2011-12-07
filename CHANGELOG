@@ -1,3 +1,6 @@
+0.3.2 2011-12-07)
+ - Fixed segfault when using non-strings as values.                      [BUG]
+
 0.3.1 2011-12-07)
  - Fixed casting of size_t for very large bloom filters.                 [BUG]
  - Added option to use standard memory (rather than mmap) to back the bloom filter.

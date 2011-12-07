@@ -23,7 +23,7 @@ ext_modules = [Extension("pybloomfilter",
 
 setup(
   name = 'pybloomfiltermmap',
-  version = "0.3.1",
+  version = "0.3.2",
   author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",
