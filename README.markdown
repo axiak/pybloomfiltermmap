@@ -5,7 +5,7 @@ correct library for Bloom Filters in Python.
 
 ## Docs
 
-You should probably read the original docs online at <http://mike.axiak.net/python-bloom-filter/docs/html/>
+See <http://axiak.github.com/pybloomfiltermmap/>.
 
 ## Overview
 
