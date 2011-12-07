@@ -19,6 +19,9 @@ BloomFilter Class Reference
    less than capacity items, and the Bloom Filter will have an error rate
    less than error_rate.
 
+   **NEW**: If you specify ``None`` for the filename, then the bloom filter
+   will be backed by malloc'd memory, rather than by a file.
+
 Static Methods
 ------------------
 

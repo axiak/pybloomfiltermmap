@@ -63,6 +63,8 @@ I want to be able to support logical OR and AND (see below).
 The capacity and error_rate then together serve as a contract&#8212;you add
 less than capacity items, and the Bloom Filter will have an error rate
 less than error_rate.</p>
+<p><strong>NEW</strong>: If you specify <tt class="xref docutils literal"><span class="pre">None</span></tt> for the filename, then the bloom filter
+will be backed by malloc&#8217;d memory, rather than by a file.</p>
 </dd></dl>
 
 <div class="section" id="static-methods">

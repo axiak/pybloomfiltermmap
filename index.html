@@ -143,19 +143,20 @@ module is an obvious win.</p>
 </div>
 <div class="section" id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<p>Unfortunately at the time I only support systems with a nice build environment
-(Linux, OS X, ..). However, I know people build Cython code on Win32 all the
-time, I just don&#8217;t want to spend time to get it to work.
-So, to install on a computer with gcc:</p>
-<blockquote>
-<ol class="arabic simple">
-<li>Download and install <a class="reference external" href="http://www.cython.org/#download">Cython</a>.</li>
-<li>Download <a class="reference external" href="http://code.google.com/p/python-bloom-filter/downloads/list">the latest release</a>.</li>
-<li>Untar the file</li>
-<li>Type $ &#8220;sudo python setup.py install&#8221;</li>
-<li>Done!</li>
-</ol>
-</blockquote>
+<p>You do not need Cython to install from sources, since I keep a cached version
+of the c output in the source distribution. Thus, to install you should only
+need to run:</p>
+<div class="highlight-python"><pre>$ sudo pip install pybloomfiltermmap</pre>
+</div>
+<p>You can also download the latest tar file from the <a class="reference external" href="https://github.com/axiak/pybloomfiltermmap/tags">github tags</a>. Once you download it, you should only have to run:</p>
+<div class="highlight-python"><pre>$ sudo python setup.py install</pre>
+</div>
+<p>to build and install the module.</p>
+</div>
+<div class="section" id="develop">
+<h2>Develop<a class="headerlink" href="#develop" title="Permalink to this headline">¶</a></h2>
+<p>To develop you will need Cython. The setup.py script should automatically
+build from Cython source if the Cython module is available.</p>
 </div>
 </div>
 
@@ -178,6 +179,7 @@ So, to install on a computer with gcc:</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#install">Install</a></li>
+<li><a class="reference internal" href="#develop">Develop</a></li>
 </ul>
 </li>
 </ul>
