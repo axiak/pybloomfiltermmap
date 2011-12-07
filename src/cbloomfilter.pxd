@@ -37,10 +37,14 @@ cdef extern from "bloomfilter.h":
          long nhash
          char * shash
 
-     BloomFilter * bloomfilter_Create(long max_num_elem,
+     BloomFilter * bloomfilter_Create_Mmap(long max_num_elem,
                                       double error_rate,
                                       char * fname, long num_bits,
                                       int oflags, int perms,
+                                      int * hash_seeds, int num_hashes)
+     BloomFilter * bloomfilter_Create_Malloc(long max_num_elem,
+                                      double error_rate,
+                                      long num_bits,
                                       int * hash_seeds, int num_hashes)
      void bloomfilter_Destroy(BloomFilter * bf)
      int bloomfilter_Add(BloomFilter * bf, Key * key)

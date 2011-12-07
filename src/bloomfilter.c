@@ -8,7 +8,38 @@
 
 #include "bloomfilter.h"
 
-BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
+BloomFilter *bloomfilter_Create_Malloc(size_t max_num_elem, double error_rate,
+                                BTYPE num_bits, int *hash_seeds, int num_hashes)
+{
+    BloomFilter * bf = (BloomFilter *)malloc(sizeof(BloomFilter));
+    MBArray * array;
+
+    if (!bf) {
+        return NULL;
+    }
+
+    bf->max_num_elem = max_num_elem;
+    bf->error_rate = error_rate;
+    bf->num_hashes = num_hashes;
+    bf->count_correct = 1;
+    bf->bf_version = BF_CURRENT_VERSION;
+    bf->elem_count = 0;
+    bf->array = NULL;
+    memset(bf->reserved, sizeof(uint32_t) * 32, 0);
+    memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
+    memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
+    array = mbarray_Create_Malloc(num_bits);
+    if (!array) {
+        bloomfilter_Destroy(bf);
+        return NULL;
+    }
+
+    bf->array = array;
+
+    return bf;
+}
+
+BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
                                 const char * file, BTYPE num_bits, int oflags, int perms,
                                 int *hash_seeds, int num_hashes)
 {
@@ -29,7 +60,7 @@ BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
     memset(bf->reserved, sizeof(uint32_t) * 32, 0);
     memset(bf->hash_seeds, sizeof(uint32_t) * 256, 0);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
-    array = mbarray_Create(num_bits, file, (char *)bf, sizeof(BloomFilter), oflags, perms);
+    array = mbarray_Create_Mmap(num_bits, file, (char *)bf, sizeof(BloomFilter), oflags, perms);
     if (!array) {
         bloomfilter_Destroy(bf);
         return NULL;
@@ -161,7 +192,7 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key) {
 }
 */
 
-
+/*
 #include "md5.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     md5_state_t state;
@@ -183,8 +214,18 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key) {
 
     return _hash_char(hash_seed, &newKey);
 }
+//*/
 
+//*
+#include "superfast.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+	return SuperFastHash(key->shash, key->nhash, hash_seed);
+}
 
+uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+	return SuperFastHash((char*)key->nhash, sizeof(key->nhash), hash_seed);
+}
+//*/
 
 
 #if 0

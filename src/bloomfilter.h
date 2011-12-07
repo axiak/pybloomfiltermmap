@@ -25,7 +25,12 @@ typedef struct {
 
 typedef struct _BloomFilter BloomFilter;
 
-BloomFilter *bloomfilter_Create(size_t max_num_elem, double error_rate,
+/* Create a bloom filter without a memory-mapped file backing it */
+BloomFilter *bloomfilter_Create_Malloc(size_t max_num_elem, double error_rate,
+                                BTYPE num_bits, int *hash_seeds, int num_hashes);
+
+/* Create a bloom filter with a memory-mapped file backing it */
+BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
                                 const char * file, BTYPE num_bits, int oflags, int perms,
                                 int *hash_seeds, int num_hashes);
 
