@@ -76,15 +76,17 @@ I have a simple benchmark in `test/speedtest.py <http://github.com/axiak/pybloom
 this module to the good
 `pybloom module <http://github.com/jaybaird/python-bloomfilter/>`_::
 
+
     (pybloom module)
-    pybloom load took 2.70 s/run
-    pybloom tests took 0.61 s/run
+    pybloom load took 0.76436 s/run
+    pybloom tests took 0.16205 s/run
     Errors: 0.25% positive 0.00% negative
 
     (this module)
-    pybloomfilter load took 0.23 s/run [1200% faster]
-    pybloomfilter tests took 0.03 s/run [2000% faster]
-    Errors: 0.03% positive 0.00% negative
+    pybloomfilter load took 0.05423 s/run
+    pybloomfilter tests took 0.00659 s/run
+    Errors: 0.26% positive 0.00% negative
+
 
 In this test we just looked at adding words from a dictionary file,
 then testing to see if each word of another file was in the dictionary.
