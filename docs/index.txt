@@ -99,15 +99,20 @@ module is an obvious win.
 Install
 ---------------------
 
-Unfortunately at the time I only support systems with a nice build environment
-(Linux, OS X, ..). However, I know people build Cython code on Win32 all the
-time, I just don't want to spend time to get it to work.
-So, to install on a computer with gcc:
+You do not need Cython to install from sources, since I keep a cached version
+of the c output in the source distribution. Thus, to install you should only
+need to run::
 
- 1. Download and install `Cython <http://www.cython.org/#download>`_.
- 2. Download `the latest release <http://code.google.com/p/python-bloom-filter/downloads/list>`_.
- 3. Untar the file
- 4. Type $ "sudo python setup.py install"
- 5. Done!
+    $ sudo pip install pybloomfiltermmap
 
+You can also download the latest tar file from the `github tags <https://github.com/axiak/pybloomfiltermmap/tags>`_. Once you download it, you should only have to run::
 
+    $ sudo python setup.py install
+
+to build and install the module.
+
+Develop
+-----------------------
+
+To develop you will need Cython. The setup.py script should automatically
+build from Cython source if the Cython module is available.
