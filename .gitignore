@@ -3,3 +3,8 @@ build/
 dist/
 docs/_build
 MANIFEST
+/bin
+/include
+/lib
+*.egg-info
+*~
