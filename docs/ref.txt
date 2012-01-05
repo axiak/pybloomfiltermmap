@@ -10,7 +10,7 @@ BloomFilter Class Reference
 .. moduleauthor:: Michael Axiak <mike@axiak.net>
 
 
-.. class:: BloomFilter(capacity : int, error_rate : float, filename : string)
+.. class:: BloomFilter(capacity : int, error_rate : float, [filename=None : string], [perm=0755])
 
    Create a new BloomFilter object with a given capacity and error_rate.
    **Note that we do not check capacity.** This is important, because
@@ -18,9 +18,6 @@ BloomFilter Class Reference
    The capacity and error_rate then together serve as a contract---you add
    less than capacity items, and the Bloom Filter will have an error rate
    less than error_rate.
-
-   **NEW**: If you specify ``None`` for the filename, then the bloom filter
-   will be backed by malloc'd memory, rather than by a file.
 
 Static Methods
 ------------------

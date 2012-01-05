@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/46219/lxml/trunk/fake_pyrex/Pyrex/Distutils
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/46219/lxml/trunk/fake_pyrex/Pyrex/Distutils/__init__.py
+END
+build_ext.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/46219/lxml/trunk/fake_pyrex/Pyrex/Distutils/build_ext.py
+END

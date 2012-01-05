@@ -1,64 +1,56 @@
-#! /usr/bin/env python
-
-import sys
-import os
+import random
+import string
+import unittest
 import tempfile
+
 import pybloomfilter
 
-WORDS_FILE = os.path.join(os.path.dirname(__file__), 'words')
-TEST_WORDS = os.path.join(os.path.dirname(__file__), 'testwords')
+from tests import with_test_file
 
-def main():
-    global pybloomfilter
+class AccuracyTestCase(unittest.TestCase):
+    def test_strings(self):
+        random_strings = list(set(''.join(random.choice(string.lowercase + string.uppercase)
+                                          for _ in range(6)) for _ in range(10000)))
+        random.shuffle(random_strings)
 
-    if len(sys.argv) > 1 and sys.argv[1].lower() == '-pybloom':
-        import pybloom
-        pybloomfilter = pybloom
+        for accuracy in (0.1, 0.01, 0.001):
+            bf = pybloomfilter.BloomFilter(8000, accuracy)
+            bf.update(random_strings[:8000])
+            false_pos, false_neg = 0, 0
+            for test in random_strings[8000:10000]:
+                if test in bf:
+                    false_pos += 1
+            for test in random_strings[6000:8000]:
+                if test not in bf:
+                    false_neg += 1
+            false_pos_rate = false_pos / 2000.
+            false_neg_rate = false_neg / 2000.
+            self.assertTrue(false_pos_rate <= accuracy*1.5, "accuracy fail: %0.2f > %0.2f" % (false_pos_rate, accuracy))
+            self.assertEqual(false_neg_rate, 0.0, "false negative rate is nonzero: %0.2f" % (false_neg_rate,))
+            del bf
+            print false_pos_rate, accuracy
 
-    with open(WORDS_FILE) as base_file:
-        with open(TEST_WORDS) as test_file:
-            base_words = set(base_file)
-            test_words = set(test_file)
-            correct_overlap = len(base_words & test_words)
-            num_test_words = len(test_words)
-            number_words = len(base_words)
+    def test_ints(self):
+        random_strings = list(range(10000))
 
-    for error_rate in (0.01, 0.001, 0.0001):
-        test_errors(error_rate, number_words, correct_overlap, num_test_words)
+        for accuracy in (0.1, 0.01, 0.001):
+            bf = pybloomfilter.BloomFilter(8000, accuracy)
+            bf.update(random_strings[:8000])
+            false_pos, false_neg = 0, 0
+            for test in random_strings[8000:10000]:
+                if test in bf:
+                    false_pos += 1
+            for test in random_strings[6000:8000]:
+                if test not in bf:
+                    false_neg += 1
+            false_pos_rate = false_pos / 2000.
+            false_neg_rate = false_neg / 2000.
+            self.assertTrue(false_pos_rate <= accuracy*1.5, "accuracy fail: %0.2f > %0.2f" % (false_pos_rate, accuracy))
+            self.assertEqual(false_neg_rate, 0.0, "false negative rate is nonzero: %0.2f" % (false_neg_rate,))
+            print false_pos_rate, accuracy
+            del bf
 
-
-def test_errors(error_rate, filter_size, correct_overlap, num_test_words):
-    bloom_file = tempfile.NamedTemporaryFile()
-    try:
-        bf = pybloomfilter.BloomFilter(filter_size, error_rate, bloom_file.name)
-    except TypeError:
-        bf = pybloomfilter.BloomFilter(filter_size, error_rate)
-
-    with open(WORDS_FILE) as source_file:
-        with open(TEST_WORDS) as test_file:
-            run_test(bf, source_file, test_file, correct_overlap, num_test_words, error_rate)
-
-    #os.unlink(bloom_file.name)
-
-
-def run_test(bf, source_file, test_file, correct_overlap, num_test_words, error_rate):
-    for word in source_file:
-        bf.add(word.rstrip())
-
-    positive_matches = sum(1 for word in test_file
-                           if word.rstrip() in bf)
-
-
-    actual_error_rate = float(positive_matches - correct_overlap) / correct_overlap
-
-    print "Specified: %f; Measured: %f; num_hashes: %d, num_bits: %d" % (
-        error_rate,
-        actual_error_rate,
-        bf.num_slices,
-        bf.num_bits,
-        )
-
-
-
-if __name__ == '__main__':
-    main()
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(AccuracyTestCase))
+    return suite

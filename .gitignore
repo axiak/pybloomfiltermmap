@@ -8,3 +8,4 @@ MANIFEST
 /lib
 *.egg-info
 *~
+*pyc

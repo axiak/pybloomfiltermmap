@@ -50,7 +50,7 @@ cdef class BloomFilter:
     cdef cbloomfilter.BloomFilter * _bf
     cdef int _closed
 
-    def __cinit__(self, capacity, error_rate, filename, perm=0755):
+    def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
         cdef char * seeds
         _closed = 0
         mode = "rw+"

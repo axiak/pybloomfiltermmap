@@ -1,7 +1,6 @@
 include CHANGELOG
 include LICENSE
 include AUTHORS
-include README
-recursive-include *.py
+include README.markdown
 recursive-include src *
 recursive-include tests *
