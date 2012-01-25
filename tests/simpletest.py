@@ -1,3 +1,4 @@
+import sys
 import unittest
 import tempfile
 
@@ -40,6 +41,12 @@ class SimpleTestCase(unittest.TestCase):
         for elem in (1.2, 2343L, (1, 2), object(), u'\u2131\u3184'):
             bf.add(elem)
             self.assertEquals(elem in bf, True)
+
+    @with_test_file
+    def test_large_file(self, filename):
+        bf = pybloomfilter.BloomFilter(400000000, 0.01, filename)
+        bf.add(1234)
+        self.assertEquals(1234 in bf, True)
 
 def suite():
     suite = unittest.TestSuite()
