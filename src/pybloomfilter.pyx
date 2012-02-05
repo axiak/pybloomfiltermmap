@@ -52,6 +52,7 @@ cdef class BloomFilter:
 
     def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
         cdef char * seeds
+        cdef long long num_bits
         _closed = 0
         mode = "rw+"
         if filename is NoConstruct:
