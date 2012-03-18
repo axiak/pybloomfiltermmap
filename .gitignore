@@ -1,7 +1,8 @@
+/local
 pybloomfilter.so
-build/
-dist/
-docs/_build
+/build/
+/dist/
+/docs/_build
 MANIFEST
 /bin
 /include
