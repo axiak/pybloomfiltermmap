@@ -64,7 +64,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
 {
     errno = 0;
     MBArray * array = (MBArray *)malloc(sizeof(MBArray));
-    int filesize;
+    uint64_t filesize;
     int32_t fheaderlen;
 
     if (!array || errno) {
