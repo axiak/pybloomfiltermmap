@@ -42,6 +42,7 @@ class SimpleTestCase(unittest.TestCase):
             bf.add(elem)
             self.assertEquals(elem in bf, True)
 
+    @unittest.skip("unfortunately large files cannot be tested on Travis")
     @with_test_file
     def test_large_file(self, filename):
         bf = pybloomfilter.BloomFilter(400000000, 0.01, filename)
