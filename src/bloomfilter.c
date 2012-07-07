@@ -182,6 +182,7 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     EVP_DigestUpdate(&ctx, (const unsigned char *)&hash_seed, sizeof(hash_seed));
     EVP_DigestUpdate(&ctx, (const unsigned char *)key->shash, key->nhash);
     EVP_DigestFinal_ex(&ctx, &result_buffer, NULL);
+    EVP_MD_CTX_cleanup(&ctx);
     return *(uint32_t *)result_buffer;
 }
 /*
