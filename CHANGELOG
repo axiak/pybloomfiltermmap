@@ -1,3 +1,7 @@
+0.3.6 2012-10-21)
+ - Minor cosmetic changes to reduce noise in clang. Might have fixed
+   cryptolib linking error.                                              [BUG]
+
 0.3.6 2012-09-04)
  - Fixed memory leak in SHA512 computation. Thanks pbutler!              [BUG]
 

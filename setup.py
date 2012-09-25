@@ -40,7 +40,8 @@ if '--cython' in sys.argv:
     sys.argv.remove('--cython')
 
 ext_modules = [Extension("pybloomfilter",
-                         ext_files)]
+                         ext_files,
+                         libraries=['crypto'])]
 
 requirements = []
 
@@ -49,7 +50,7 @@ if sys.version_info[0] < 3 and sys.version_info[1] < 7:
 
 setup(
   name = 'pybloomfiltermmap',
-  version = "0.3.6",
+  version = "0.3.8",
   author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",

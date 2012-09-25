@@ -84,7 +84,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
 
     fheaderlen = mbarray_HeaderLen(array);
     errno = 0;
-    if (fheaderlen >= 0 && !(oflag && O_CREAT) && fheaderlen != header_len) {
+    if (fheaderlen >= 0 && !(oflag & O_CREAT) && fheaderlen != header_len) {
         errno = EINVAL;
         mbarray_Destroy(array);
         return NULL;
@@ -111,7 +111,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
     array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
     array->bytes = (size_t)ceil((double)num_bits / 8.0);
 
-    if (filesize < 0) {
+    if (filesize <= 0) {
         mbarray_Destroy(array);
         return NULL;
     }
@@ -425,7 +425,7 @@ static inline int _filesize(int fd)
         return -1;
     }
 
-    return buffer.st_size;
+    return (int)buffer.st_size;
 }
 
 uint64_t _get_num_bits(int fd) {

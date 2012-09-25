@@ -173,15 +173,13 @@ CODE TO USE SHA512..
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     EVP_MD_CTX ctx;
     unsigned char result_buffer[64];
-    uint32_t result = 0;
-    unsigned int result_size = sizeof(result);
 
     EVP_MD_CTX_init(&ctx);
 
     EVP_DigestInit_ex(&ctx, EVP_sha512(), NULL);
     EVP_DigestUpdate(&ctx, (const unsigned char *)&hash_seed, sizeof(hash_seed));
     EVP_DigestUpdate(&ctx, (const unsigned char *)key->shash, key->nhash);
-    EVP_DigestFinal_ex(&ctx, &result_buffer, NULL);
+    EVP_DigestFinal_ex(&ctx, (unsigned char *)&result_buffer, NULL);
     EVP_MD_CTX_cleanup(&ctx);
     return *(uint32_t *)result_buffer;
 }
@@ -202,7 +200,7 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 }
 
 
-/* Code for SuperFast * /
+/ * Code for SuperFast * /
 #include "superfast.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 	return SuperFastHash(key->shash, key->nhash, hash_seed);
