@@ -50,7 +50,7 @@ if sys.version_info[0] < 3 and sys.version_info[1] < 7:
 
 setup(
   name = 'pybloomfiltermmap',
-  version = "0.3.8",
+  version = "0.3.9",
   author = "Michael Axiak, Rob Stacey",
   author_email = "mike@axiak.net",
   url = "http://github.com/axiak/pybloomfiltermmap/",

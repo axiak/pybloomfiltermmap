@@ -111,7 +111,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
     array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
     array->bytes = (size_t)ceil((double)num_bits / 8.0);
 
-    if (filesize <= 0) {
+    if (filesize < 0) {
         mbarray_Destroy(array);
         return NULL;
     }
