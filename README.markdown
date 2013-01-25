@@ -13,11 +13,13 @@ After you install, the interface to use is a cross between a file
 interface and a ste interface. As an example:
 
     >>> fruit = pybloomfilter.BloomFilter(100000, 0.1, '/tmp/words.bloom')
-    >>> fruit.extend(('apple', 'pear', 'orange', 'apple'))
+    >>> fruit.update(('apple', 'pear', 'orange', 'apple'))
     >>> len(fruit)
     3
     >>> 'mike' in fruit
     False
+    >>> 'apple' in fruit
+    True
 
 ## Install
 
