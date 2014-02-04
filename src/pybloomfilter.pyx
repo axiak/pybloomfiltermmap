@@ -29,6 +29,16 @@ cdef construct_mode(mode):
     return result
 
 cdef NoConstruct = object()
+cdef ReadFile = object()
+
+def bf_from_base64(filename, string, perm=0755):
+    bfile = open(filename, 'w+', perm)
+    bfile.write(zlib.decompress(zlib.decompress(string.decode('base64')).decode('base64')))
+    bfile.close()
+    return BloomFilter.open(filename)
+
+def bf_from_file(filename, mode='r'):
+    return BloomFilter(ReadFile, 0.1, filename, mode, 0)
 
 class IndeterminateCountError(ValueError):
     pass
@@ -43,40 +53,44 @@ cdef class BloomFilter:
     cdef int _in_memory
     cdef public ReadFile
 
-    def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
+    def __cinit__(self, capacity, error_rate, filename=None, mode='rw+', perm=0755 ):
+
+        """
+        mode: chmod type access to file, default rw+ for creating the bloom filter
+        perm, permissions for when the file is created, not opened. 0755 means Read, Write, Execute access for owner,
+        read, execute for group owner and others.
+        """
         cdef char * seeds
         cdef long long num_bits
         self._closed = 0
         self._in_memory = 0
         self.ReadFile = self.__class__.ReadFile
-        mode = "rw+"
+
+        oflags = construct_mode(mode)
+
         if filename is NoConstruct:
             return
 
-        if capacity is self.ReadFile:
-            mode = "rw"
+        if capacity is ReadFile:
             capacity = 0
             if not os.path.exists(filename):
                 raise OSError("File %s not found" % filename)
 
-            if not os.access(filename, os.O_RDWR):
+            if not os.access(filename, oflags):
                 raise OSError("Insufficient permissions for file %s" % filename)
 
-        mode = construct_mode(mode)
 
-
-        if not mode & os.O_CREAT:
+        if not oflags & os.O_CREAT: #if the file is already created
             if os.path.exists(filename):
                 self._bf = cbloomfilter.bloomfilter_Create_Mmap(capacity,
                                                            error_rate,
                                                            filename,
                                                            0,
-                                                           mode,
+                                                           oflags,
                                                            perm,
                                                            NULL, 0)
                 if self._bf is NULL:
-                    raise ValueError("Invalid %s file: %s" %
-                                     (self.__class__.__name__, filename))
+                    raise ValueError("Invalid %s file: %s" % (self.__class__.__name__, filename))
             else:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
@@ -122,7 +136,7 @@ cdef class BloomFilter:
                                                        error_rate,
                                                        filename,
                                                        num_bits,
-                                                       mode,
+                                                       oflags,
                                                        perm,
                                                        <int *>seeds,
                                                        num_hashes)
