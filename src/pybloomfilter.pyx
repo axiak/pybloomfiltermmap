@@ -179,7 +179,10 @@ cdef class BloomFilter:
                                           'in-memory %s' %
                                           self.__class__.__name__)
 
-            return self._bf.array.filename
+            if self._bf.array.filename is not NULL:
+                return self._bf.array.filename
+            else:
+                return None
 
     def fileno(self):
         self._assert_open()
