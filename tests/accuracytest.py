@@ -68,7 +68,7 @@ class AccuracyTestCase(unittest.TestCase):
                     false_neg += 1
             false_pos_rate = false_pos / float(count_not_in_filter)
             false_neg_rate = false_neg / float(count_in_filter)
-            error_rate_target = accuracy * 2  # cut it some slack
+            error_rate_target = accuracy * 3  # cut it some slack
             self.assertTrue(
                 false_pos_rate <= error_rate_target,
                 "false_pos: %r / %r = %r > %r" % (

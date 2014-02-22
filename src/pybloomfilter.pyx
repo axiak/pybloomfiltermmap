@@ -1,4 +1,4 @@
-VERSION = (0, 3, 11, 3)
+VERSION = (0, 3, 11)
 AUTHOR = "Michael Axiak"
 
 __VERSION__ = VERSION
@@ -15,7 +15,8 @@ import array
 import zlib
 import shutil
 
-global errno
+
+cdef extern int errno
 
 cdef construct_mode(mode):
     result = os.O_RDONLY
@@ -70,7 +71,7 @@ cdef class BloomFilter:
                                                            error_rate,
                                                            filename,
                                                            0,
-                                                           os.O_RDWR,
+                                                           mode,
                                                            perm,
                                                            NULL, 0)
                 if self._bf is NULL:
@@ -123,7 +124,11 @@ cdef class BloomFilter:
                                                        <int *>seeds,
                                                        num_hashes)
             if self._bf is NULL:
-                cpython.PyErr_NoMemory()
+                if filename:
+                    raise OSError(errno, '%s: %s' % (os.strerror(errno),
+                                                     filename))
+                else:
+                    cpython.PyErr_NoMemory()
 
     def __dealloc__(self):
         cbloomfilter.bloomfilter_Destroy(self._bf)
@@ -307,9 +312,10 @@ cdef class BloomFilter:
 
     @classmethod
     def from_base64(cls, filename, string, perm=0755):
-        bfile = open(filename, 'w+', perm)
-        bfile.write(zlib.decompress(zlib.decompress(string.decode('base64')).decode('base64')))
-        bfile.close()
+        bfile_fp = os.open(filename, construct_mode('w+'), perm)
+        os.write(bfile_fp, zlib.decompress(zlib.decompress(
+            string.decode('base64')).decode('base64')))
+        os.close(bfile_fp)
         return cls.open(filename)
 
     @classmethod

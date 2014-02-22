@@ -117,15 +117,34 @@ class SimpleTestCase(unittest.TestCase):
         bf = self.bf.copy(filename)
         self._check_filter(bf)
 
+    def assertBfPermissions(self, bf, perms):
+        oct_mode = oct(os.stat(bf.name).st_mode)
+        self.assert_(oct_mode.endswith(perms),
+                     'unexpected perms %s' % oct_mode)
+
     @with_test_file
     def test_to_from_base64(self, filename):
         self._populate_filter(self.bf)
         self.bf.sync()
 
+        # sanity-check
+        self.assertBfPermissions(self.bf, '0755')
+
         b64 = self.bf.to_base64()
 
-        bf = pybloomfilter.BloomFilter.from_base64(filename, b64)
-        self._check_filter(bf)
+        old_umask = os.umask(0)
+        try:
+            os.unlink(filename)
+            bf = pybloomfilter.BloomFilter.from_base64(filename, b64,
+                                                       perm=0775)
+            self.assertBfPermissions(bf, '0775')
+            self._check_filter(bf)
+        finally:
+            os.umask(old_umask)
+
+    def test_missing_file_is_os_error(self):
+        self.assertRaises(OSError, pybloomfilter.BloomFilter, 1000, 0.1,
+                          'missing_directory/some_file.bloom')
 
     @with_test_file
     def test_others(self, filename):
