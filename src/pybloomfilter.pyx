@@ -95,6 +95,11 @@ cdef class BloomFilter:
             #num_bits = cbloomfilter.next_prime(num_bits)
             #num_hashes = int(math.ceil(math.log(2.0) * num_bits / capacity))
 
+            #print "BITS/ENTRY classic %.6f; ideal %.6f; actual %.6f" % (
+            #    1.44 * math.log(1.0 / error_rate, 2.0),
+            #    math.log(1.0 / error_rate, 2.0),
+            #    float(num_bits) / capacity)
+
             hash_seeds = array.array('I')
             hash_seeds.extend([random.getrandbits(32) for i in range(num_hashes)])
             test = hash_seeds.tostring()

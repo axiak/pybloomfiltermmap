@@ -63,7 +63,7 @@ MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms);
 int mbarray_Update(MBArray * array, char * data, int size);
 /*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
 
-int mbarray_FileSize(MBArray * array);
+uint64_t mbarray_FileSize(MBArray * array);
 
 char * mbarray_CharData(MBArray * array);
 

@@ -199,11 +199,23 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     return *(uint32_t *)(&result[4]);
 }
 
-
-/ * Code for SuperFast * /
+*/
+/* Code for SuperFast */
+/*
 #include "superfast.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 	return SuperFastHash(key->shash, key->nhash, hash_seed);
+}
+*/
+
+/* Code for MurmurHash3 */
+/*
+#include "MurmurHash3.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+    uint32_t hashed_val = 0;
+    MurmurHash3_x86_32((const void *)key->shash, (int)key->nhash,
+                       hash_seed, &hashed_val);
+    return hashed_val;
 }
 */
 

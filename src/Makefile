@@ -1,5 +1,5 @@
 bloomfilter: mmapbitarray.* bloomfilter.*
-	gcc -lm -O3 mmapbitarray.c md5.c bloomfilter.c -o bf
+	gcc -lm -O3 mmapbitarray.c md5.c MurmurHash3.cpp bloomfilter.c -o bf
 
 mbarray: mmapbitarray.*
 	gcc -lm -O3 -DMBAQUERY mmapbitarray.c -o mbaquery
