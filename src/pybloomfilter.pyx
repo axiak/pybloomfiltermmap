@@ -28,7 +28,6 @@ cdef construct_mode(mode):
     return result
 
 cdef NoConstruct = object()
-cdef _ReadFile = object()
 
 class IndeterminateCountError(ValueError):
     pass
