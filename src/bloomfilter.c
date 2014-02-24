@@ -155,19 +155,7 @@ uint32_t _hash_long(uint32_t hash_seed, Key * key) {
 }
 
 /*
-CODE FOR djb HASH...
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
-    register uint32_t result = 5381 ^ hash_seed;
-    register unsigned char * ptr = (unsigned char *)key->shash;
-    register int i;
-    for (i = key->nhash; i > 0; --i) {
-        result = 33 * result + *(ptr++);
-    }
-    return result;
-}
-
 CODE TO USE SHA512..
-*/
 #include <openssl/evp.h>
 
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
@@ -183,41 +171,17 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     EVP_MD_CTX_cleanup(&ctx);
     return *(uint32_t *)result_buffer;
 }
-/*
-CODE TO USE md5sum
-
-#include "md5.h"
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
-    md5_state_t state;
-    md5_byte_t result[16];
-    int i;
-
-    md5_init(&state);
-    md5_append(&state, (md5_byte_t *)&hash_seed, sizeof(uint32_t));
-    md5_append(&state, (md5_byte_t *)key->shash, key->nhash);
-    md5_finish(&state, result);
-    return *(uint32_t *)(&result[4]);
-}
-
-*/
-/* Code for SuperFast */
-/*
-#include "superfast.h"
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
-	return SuperFastHash(key->shash, key->nhash, hash_seed);
-}
 */
 
 /* Code for MurmurHash3 */
-/*
 #include "MurmurHash3.h"
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
-    uint32_t hashed_val = 0;
-    MurmurHash3_x86_32((const void *)key->shash, (int)key->nhash,
-                       hash_seed, &hashed_val);
-    return hashed_val;
+    uint32_t hashed_pieces[4];
+    MurmurHash3_x64_128((const void *)key->shash, (int)key->nhash,
+                       hash_seed, &hashed_pieces);
+    return hashed_pieces[0] ^ hashed_pieces[1] ^ hashed_pieces[2] ^ hashed_pieces[3];
 }
-*/
+
 
 #if 0
 int main(int argc, char **argv)
