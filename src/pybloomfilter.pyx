@@ -15,7 +15,8 @@ import array
 import zlib
 import shutil
 
-global errno
+
+cdef extern int errno
 
 cdef construct_mode(mode):
     result = os.O_RDONLY
@@ -28,16 +29,6 @@ cdef construct_mode(mode):
     return result
 
 cdef NoConstruct = object()
-cdef ReadFile = object()
-
-def bf_from_base64(filename, string, perm=0755):
-    bfile = open(filename, 'w+', perm)
-    bfile.write(zlib.decompress(zlib.decompress(string.decode('base64')).decode('base64')))
-    bfile.close()
-    return BloomFilter.open(filename)
-
-def bf_from_file(filename):
-    return BloomFilter(ReadFile, 0.1, filename, 0)
 
 class IndeterminateCountError(ValueError):
     pass
@@ -49,16 +40,20 @@ cdef class BloomFilter:
     """
     cdef cbloomfilter.BloomFilter * _bf
     cdef int _closed
+    cdef int _in_memory
+    cdef public ReadFile
 
     def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
         cdef char * seeds
         cdef long long num_bits
-        _closed = 0
+        self._closed = 0
+        self._in_memory = 0
+        self.ReadFile = self.__class__.ReadFile
         mode = "rw+"
         if filename is NoConstruct:
             return
 
-        if capacity is ReadFile:
+        if capacity is self.ReadFile:
             mode = "rw"
             capacity = 0
             if not os.path.exists(filename):
@@ -76,11 +71,12 @@ cdef class BloomFilter:
                                                            error_rate,
                                                            filename,
                                                            0,
-                                                           os.O_RDWR,
+                                                           mode,
                                                            perm,
                                                            NULL, 0)
                 if self._bf is NULL:
-                    raise ValueError("Invalid Bloomfilter file: %s" % filename)
+                    raise ValueError("Invalid %s file: %s" %
+                                     (self.__class__.__name__, filename))
             else:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
@@ -90,14 +86,26 @@ cdef class BloomFilter:
             if filename and os.path.exists(filename):
                 os.unlink(filename)
 
-            num_hashes = int(math.ceil(math.log(1.0 / error_rate, 2.0)))
+            # For why we round down for determining the number of hashes:
+            # http://corte.si/%2Fposts/code/bloom-filter-rules-of-thumb/index.html
+            # "The number of hashes determines the number of bits that need to
+            # be read to test for membership, the number of bits that need to be
+            # written to add an element, and the amount of computation needed to
+            # calculate hashes themselves. We may sometimes choose to use a less
+            # than optimal number of hashes for performance reasons (especially
+            # when we choose to round down when the calculated optimal number of
+            # hashes is fractional)."
+            num_hashes = int(math.floor(math.log(1.0 / error_rate, 2.0)))
             bits_per_hash = int(math.ceil(
-                    (2.0 * capacity * abs(math.log(error_rate))) /
+                    capacity * abs(math.log(error_rate)) /
                     (num_hashes * (math.log(2) ** 2))))
 
             num_bits = num_hashes * bits_per_hash
-            #num_bits = cbloomfilter.next_prime(num_bits)
-            #num_hashes = int(math.ceil(math.log(2.0) * num_bits / capacity))
+
+            #print "k = %d  m = %d  n = %d   p ~= %.8f" % (
+            #    num_hashes, num_bits, capacity,
+            #    (1.0 - math.exp(- float(num_hashes) * float(capacity) / num_bits))
+            #    ** num_hashes)
 
             hash_seeds = array.array('I')
             hash_seeds.extend([random.getrandbits(32) for i in range(num_hashes)])
@@ -116,13 +124,18 @@ cdef class BloomFilter:
                                                        <int *>seeds,
                                                        num_hashes)
             else:
+                self._in_memory = 1
                 self._bf = cbloomfilter.bloomfilter_Create_Malloc(capacity,
                                                        error_rate,
                                                        num_bits,
                                                        <int *>seeds,
                                                        num_hashes)
             if self._bf is NULL:
-                cpython.PyErr_NoMemory()
+                if filename:
+                    raise OSError(errno, '%s: %s' % (os.strerror(errno),
+                                                     filename))
+                else:
+                    cpython.PyErr_NoMemory()
 
     def __dealloc__(self):
         cbloomfilter.bloomfilter_Destroy(self._bf)
@@ -150,11 +163,6 @@ cdef class BloomFilter:
             self._assert_open()
             return self._bf.num_hashes
 
-    property num_slices:
-        def __get__(self):
-            self._assert_open()
-            return self._bf.num_hashes
-
     property num_bits:
         def __get__(self):
             self._assert_open()
@@ -163,6 +171,11 @@ cdef class BloomFilter:
     property name:
         def __get__(self):
             self._assert_open()
+            if self._in_memory:
+                raise NotImplementedError('Cannot access .name on an '
+                                          'in-memory %s' %
+                                          self.__class__.__name__)
+
             return self._bf.array.filename
 
     def fileno(self):
@@ -171,11 +184,13 @@ cdef class BloomFilter:
 
     def __repr__(self):
         self._assert_open()
-        return '<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
-            self._bf.max_num_elem, self._bf.error_rate, self._bf.num_hashes)
+        my_name = self.__class__.__name__
+        return '<%s capacity: %d, error: %0.3f, num_hashes: %d>' % (
+            my_name, self._bf.max_num_elem, self._bf.error_rate,
+            self._bf.num_hashes)
 
     def __str__(self):
-        return __repr__(self)
+        return self.__repr__()
 
     def sync(self):
         self._assert_open()
@@ -206,8 +221,11 @@ cdef class BloomFilter:
 
     def copy(self, filename):
         self._assert_open()
+        if self._in_memory:
+            raise NotImplementedError('Cannot call .copy on an in-memory %s' %
+                                      self.__class__.__name__)
         shutil.copy(self._bf.array.filename, filename)
-        return BloomFilter(self._bf.max_num_elem, self._bf.error_rate, filename, mode="rw", perm=0)
+        return self.__class__(self.ReadFile, 0.1, filename, perm=0)
 
     def add(self, item):
         self._assert_open()
@@ -232,7 +250,9 @@ cdef class BloomFilter:
     def __len__(self):
         self._assert_open()
         if not self._bf.count_correct:
-            raise IndeterminateCountError("Length of BloomFilter object is unavailable after intersection or union called.")
+            raise IndeterminateCountError("Length of %s object is unavailable "
+                                          "after intersection or union called." %
+                                          self.__class__.__name__)
         return self._bf.elem_count
 
     def close(self):
@@ -277,7 +297,8 @@ cdef class BloomFilter:
             raise ValueError("I/O operation on closed file")
 
     def _assert_comparable(self, BloomFilter other):
-        error = ValueError("The two BloomFilter objects are not the same type (hint, use copy_template)")
+        error = ValueError("The two %s objects are not the same type (hint, "
+                           "use copy_template)" % self.__class__.__name__)
         if self._bf.array.bits != other._bf.array.bits:
             raise error
         if self.hash_seeds != other.hash_seeds:
@@ -291,5 +312,14 @@ cdef class BloomFilter:
         bfile.close()
         return result
 
-    from_base64 = staticmethod(bf_from_base64)
-    open = staticmethod(bf_from_file)
+    @classmethod
+    def from_base64(cls, filename, string, perm=0755):
+        bfile_fp = os.open(filename, construct_mode('w+'), perm)
+        os.write(bfile_fp, zlib.decompress(zlib.decompress(
+            string.decode('base64')).decode('base64')))
+        os.close(bfile_fp)
+        return cls.open(filename)
+
+    @classmethod
+    def open(cls, filename):
+        return cls(cls.ReadFile, 0.1, filename, 0)

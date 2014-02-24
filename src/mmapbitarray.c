@@ -12,7 +12,7 @@
 #include "mmapbitarray.h"
 
 /* Private helpers */
-static inline int _filesize(int fd);
+static inline uint64_t _filesize(int fd);
 static inline int _valid_magic(int fd);
 int _initialize_file(int fd, size_t end, BTYPE num_bits, const char * header, int32_t header_len);
 uint64_t _get_num_bits(int fd);
@@ -45,13 +45,14 @@ MBArray * mbarray_Create_Malloc(BTYPE num_bits)
     // This is how many DTYPEs there are, and how many bytes there
     // are in this particular structure. As well as the number of 
     // bits
-    array->size  = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-    array->bytes = (int)ceil((double)num_bits / 8.0);
+    array->size  = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (size_t)ceil((double)num_bits / 8.0);
     array->bits  = num_bits;
 
     // Now try to allocate enough space for our array
     errno = 0;
-	array->vector = (DTYPE *)malloc(array->bytes);
+    array->vector = (DTYPE *)malloc(array->bytes);
+    memset((void *)array->vector, 0, sizeof(DTYPE) * array->size);
     if (errno || !array->vector) {
         mbarray_Destroy(array);
         return NULL;
@@ -111,7 +112,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
     array->size = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
     array->bytes = (size_t)ceil((double)num_bits / 8.0);
 
-    if (filesize < 0) {
+    if (filesize == 0xffffffffffffffff) {
         mbarray_Destroy(array);
         return NULL;
     }
@@ -359,7 +360,7 @@ MBArray * mbarray_Copy_Template(MBArray * src, char * filename, int perms)
 
 
 /*MBArray * mbarray_Copy(MBarray * src, const char * filename);*/
-int mbarray_FileSize(MBArray * array)
+uint64_t mbarray_FileSize(MBArray * array)
 {
     return _filesize(array->fd);
 }
@@ -416,16 +417,16 @@ static inline int _valid_magic(int fd)
     }
 }
 
-static inline int _filesize(int fd)
+static inline uint64_t _filesize(int fd)
 {
     struct stat buffer;
     int status;
     status = fstat(fd, &buffer);
     if (status || errno) {
-        return -1;
+        return (uint64_t)0xffffffffffffffff;
     }
 
-    return (int)buffer.st_size;
+    return (uint64_t)buffer.st_size;
 }
 
 uint64_t _get_num_bits(int fd) {

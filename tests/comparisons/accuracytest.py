@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 import sys
 import os
@@ -54,7 +54,7 @@ def run_test(bf, source_file, test_file, correct_overlap, num_test_words, error_
     print "Specified: %f; Measured: %f; num_hashes: %d, num_bits: %d" % (
         error_rate,
         actual_error_rate,
-        bf.num_slices,
+        getattr(bf, 'num_hashes', None) or getattr(bf, 'num_slices'),
         bf.num_bits,
         )
 
