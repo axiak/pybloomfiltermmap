@@ -51,8 +51,7 @@ MBArray * mbarray_Create_Malloc(BTYPE num_bits)
 
     // Now try to allocate enough space for our array
     errno = 0;
-    array->vector = (DTYPE *)malloc(array->bytes);
-    memset((void *)array->vector, 0, sizeof(DTYPE) * array->size);
+    array->vector = (DTYPE *)calloc(array->bytes, 1);
     if (errno || !array->vector) {
         mbarray_Destroy(array);
         return NULL;
