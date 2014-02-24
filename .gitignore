@@ -10,3 +10,4 @@ MANIFEST
 *.egg-info
 *~
 *pyc
+/tags

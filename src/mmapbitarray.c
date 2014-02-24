@@ -45,13 +45,14 @@ MBArray * mbarray_Create_Malloc(BTYPE num_bits)
     // This is how many DTYPEs there are, and how many bytes there
     // are in this particular structure. As well as the number of 
     // bits
-    array->size  = (int)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
-    array->bytes = (int)ceil((double)num_bits / 8.0);
+    array->size  = (size_t)ceil((double)num_bits / sizeof(DTYPE) / 8.0);
+    array->bytes = (size_t)ceil((double)num_bits / 8.0);
     array->bits  = num_bits;
 
     // Now try to allocate enough space for our array
     errno = 0;
-	array->vector = (DTYPE *)malloc(array->bytes);
+    array->vector = (DTYPE *)malloc(array->bytes);
+    memset((void *)array->vector, 0, sizeof(DTYPE) * array->size);
     if (errno || !array->vector) {
         mbarray_Destroy(array);
         return NULL;

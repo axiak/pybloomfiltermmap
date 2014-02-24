@@ -19,16 +19,19 @@ BloomFilter Class Reference
    less than capacity items, and the Bloom Filter will have an error rate
    less than error_rate.
 
-Static Methods
-------------------
+Class Methods
+-------------
 
-.. staticmethod:: BloomFilter.open(filename)
+.. classmethod:: BloomFilter.open(filename)
 
-   Open an already existing Bloomfilter file.
+   Return a BloomFilter object using an already-existing Bloomfilter file.
 
-.. staticmethod:: BloomFilter.from_base64(filename, input, [perm = 0755])
+.. classmethod:: BloomFilter.from_base64(filename, string, [perm=0755])
 
-   Create a new BloomFilter object on filename from the input base64 string.
+   Unpack the supplied base64 string (as returned by BloomFilter.to_base64)
+   into the supplied filename and return a BloomFilter object using that
+   file.
+
    Example::
 
     >>> bf = BloomFilter.from_base64("/tmp/mike.bf", 

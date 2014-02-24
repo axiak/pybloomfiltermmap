@@ -28,6 +28,17 @@ class SimpleTestCase(unittest.TestCase):
     def tearDown(self):
         os.unlink(self.tempfile.name)
 
+    def assertPropertiesPreserved(self, old_bf, new_bf):
+        # Assert that a "new" BloomFilter has the same properties as an "old"
+        # one.
+        failures = []
+        for prop in ['capacity', 'error_rate', 'num_hashes', 'num_bits',
+                     'hash_seeds']:
+            old, new = getattr(old_bf, prop), getattr(new_bf, prop)
+            if new != old:
+                failures.append((prop, old, new))
+        self.assertEqual([], failures)
+
     def _random_str(self, length=16):
         chars = string.lowercase + string.uppercase
         return ''.join(choice(chars) for _ in xrange(length))
@@ -65,15 +76,23 @@ class SimpleTestCase(unittest.TestCase):
             for item in self._in_filter:
                 bf.add(item)
 
-    def _check_filter(self, bf):
-        expected_in = len(self._in_filter)
-        false_pos = expected_in - len(filter(bf.__contains__, self._in_filter))
-        self.assertTrue((float(false_pos) / expected_in) <
-                        self.FILTER_ERROR_RATE,
-                        '%r / %r = %r > %r' % (false_pos, expected_in,
-                                               float(false_pos) / expected_in,
-                                               self.FILTER_ERROR_RATE))
+    def _check_filter_contents(self, bf):
+        for item in self._in_filter:
+            # We should *never* say "not in" for something which was added
+            self.assertTrue(item in bf, '%r was NOT in %r' % (item, bf))
+
+        # We might say something is in the filter which isn't; we're only
+        # trying to test correctness, here, so we are very lenient.  If the
+        # false positive rate is within 2 orders of magnitude, we're okay.
+        false_pos = len(filter(bf.__contains__, self._not_in_filter))
+        error_rate = float(false_pos) / len(self._not_in_filter)
+        self.assertTrue(error_rate < 100 * self.FILTER_ERROR_RATE,
+                        '%r / %r = %r > %r' % (false_pos,
+                                               len(self._not_in_filter),
+                                               error_rate,
+                                               100 * self.FILTER_ERROR_RATE))
         for item in self._not_in_filter:
+            # We should *never* have a false negative
             self.assertFalse(item in bf, '%r WAS in %r' % (item, bf))
 
     def test_repr(self):
@@ -92,22 +111,22 @@ class SimpleTestCase(unittest.TestCase):
 
     def test_add_and_check_file_backed(self):
         self._populate_filter(self.bf)
-        self._check_filter(self.bf)
+        self._check_filter_contents(self.bf)
 
     def test_update_and_check_file_backed(self):
         self._populate_filter(self.bf, use_update=True)
-        self._check_filter(self.bf)
+        self._check_filter_contents(self.bf)
 
     def test_add_and_check_memory_backed(self):
         self._populate_filter(self.bf_mem)
-        self._check_filter(self.bf_mem)
+        self._check_filter_contents(self.bf_mem)
 
     def test_open(self):
         self._populate_filter(self.bf)
         self.bf.sync()
 
         bf = pybloomfilter.BloomFilter.open(self.bf.name)
-        self._check_filter(bf)
+        self._check_filter_contents(bf)
 
     @with_test_file
     def test_copy(self, filename):
@@ -115,7 +134,8 @@ class SimpleTestCase(unittest.TestCase):
         self.bf.sync()
 
         bf = self.bf.copy(filename)
-        self._check_filter(bf)
+        self._check_filter_contents(bf)
+        self.assertPropertiesPreserved(self.bf, bf)
 
     def assertBfPermissions(self, bf, perms):
         oct_mode = oct(os.stat(bf.name).st_mode)
@@ -138,7 +158,8 @@ class SimpleTestCase(unittest.TestCase):
             bf = pybloomfilter.BloomFilter.from_base64(filename, b64,
                                                        perm=0775)
             self.assertBfPermissions(bf, '0775')
-            self._check_filter(bf)
+            self._check_filter_contents(bf)
+            self.assertPropertiesPreserved(self.bf, bf)
         finally:
             os.umask(old_umask)
 

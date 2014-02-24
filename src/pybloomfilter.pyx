@@ -86,19 +86,26 @@ cdef class BloomFilter:
             if filename and os.path.exists(filename):
                 os.unlink(filename)
 
-            num_hashes = int(math.ceil(math.log(1.0 / error_rate, 2.0)))
+            # For why we round down for determining the number of hashes:
+            # http://corte.si/%2Fposts/code/bloom-filter-rules-of-thumb/index.html
+            # "The number of hashes determines the number of bits that need to
+            # be read to test for membership, the number of bits that need to be
+            # written to add an element, and the amount of computation needed to
+            # calculate hashes themselves. We may sometimes choose to use a less
+            # than optimal number of hashes for performance reasons (especially
+            # when we choose to round down when the calculated optimal number of
+            # hashes is fractional)."
+            num_hashes = int(math.floor(math.log(1.0 / error_rate, 2.0)))
             bits_per_hash = int(math.ceil(
-                    (2.0 * capacity * abs(math.log(error_rate))) /
+                    capacity * abs(math.log(error_rate)) /
                     (num_hashes * (math.log(2) ** 2))))
 
             num_bits = num_hashes * bits_per_hash
-            #num_bits = cbloomfilter.next_prime(num_bits)
-            #num_hashes = int(math.ceil(math.log(2.0) * num_bits / capacity))
 
-            #print "BITS/ENTRY classic %.6f; ideal %.6f; actual %.6f" % (
-            #    1.44 * math.log(1.0 / error_rate, 2.0),
-            #    math.log(1.0 / error_rate, 2.0),
-            #    float(num_bits) / capacity)
+            #print "k = %d  m = %d  n = %d   p ~= %.8f" % (
+            #    num_hashes, num_bits, capacity,
+            #    (1.0 - math.exp(- float(num_hashes) * float(capacity) / num_bits))
+            #    ** num_hashes)
 
             hash_seeds = array.array('I')
             hash_seeds.extend([random.getrandbits(32) for i in range(num_hashes)])
@@ -152,11 +159,6 @@ cdef class BloomFilter:
             return self._bf.error_rate
 
     property num_hashes:
-        def __get__(self):
-            self._assert_open()
-            return self._bf.num_hashes
-
-    property num_slices:
         def __get__(self):
             self._assert_open()
             return self._bf.num_hashes
