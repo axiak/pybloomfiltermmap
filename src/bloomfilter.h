@@ -6,6 +6,8 @@
 #define BF_CURRENT_VERSION 1
 
 struct _BloomFilter {
+    unsigned char count_correct;
+    uint64_t * elem_count_p;
     uint64_t max_num_elem;
     double error_rate;
     uint32_t num_hashes;
@@ -13,7 +15,6 @@ struct _BloomFilter {
     /* All of the bit data is already in here. */
     MBArray * array;
     unsigned char bf_version;
-    unsigned char count_correct;
     uint64_t elem_count;
     uint32_t reserved[32];
 };
@@ -68,6 +69,8 @@ static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
     }
     if (!result && bf->count_correct) {
         bf->elem_count ++;
+        if (bf->elem_count_p != NULL)
+            *(bf->elem_count_p) = bf->elem_count;
     }
     return result;
 }

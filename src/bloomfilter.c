@@ -25,6 +25,7 @@ BloomFilter *bloomfilter_Create_Malloc(size_t max_num_elem, double error_rate,
     bf->bf_version = BF_CURRENT_VERSION;
     bf->elem_count = 0;
     bf->array = NULL;
+    bf->elem_count_p = NULL;
     memset(bf->reserved, 0, sizeof(uint32_t) * 32);
     memset(bf->hash_seeds, 0, sizeof(uint32_t) * 256);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
@@ -57,6 +58,7 @@ BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
     bf->bf_version = BF_CURRENT_VERSION;
     bf->elem_count = 0;
     bf->array = NULL;
+    bf->elem_count_p = NULL;
     memset(bf->reserved, 0,  sizeof(uint32_t) * 32);
     memset(bf->hash_seeds, 0, sizeof(uint32_t) * 256);
     memcpy(bf->hash_seeds, hash_seeds, sizeof(uint32_t) * num_hashes);
@@ -81,6 +83,10 @@ BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
     /* Since we just initialized from a file, we have to
        fix our pointers */
     bf->array = array;
+    
+    /* mmap address of bf->elem_count */
+    bf->elem_count_p = (uint64_t *) ((char *) bf->array->vector + MBAMAGICSIZE + sizeof (BTYPE) + sizeof (int32_t));
+
 
     return bf;
 }
