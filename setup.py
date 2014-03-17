@@ -31,11 +31,11 @@ try:
     print "info: Building from Cython"
     ext_files.append("src/pybloomfilter.pyx")
     kwargs['cmdclass'] = {'build_ext': build_ext}
-    try:
-        os.unlink(os.path.join(here, 'src', 'pybloomfilter.c'))
-        os.unlink(os.path.join(here, 'pybloomfilter.so'))
-    except:
-        pass
+    #try:
+    #    os.unlink(os.path.join(here, 'src', 'pybloomfilter.c'))
+    #    os.unlink(os.path.join(here, 'pybloomfilter.so'))
+    #except:
+    #    pass
 except ImportError:
     if '--cython' in sys.argv:
         raise
@@ -55,7 +55,7 @@ if sys.version_info[0] < 3 and sys.version_info[1] < 7:
     requirements.append('importlib')
 
 setup(name='pybloomfiltermmap',
-      version="0.3.13",
+      version="0.3.14",
       author="Michael Axiak, Rob Stacey",
       author_email="mike@axiak.net",
       url="http://github.com/axiak/pybloomfiltermmap/",
