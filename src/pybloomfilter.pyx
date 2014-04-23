@@ -1,4 +1,4 @@
-VERSION = (0, 3, 14)
+VERSION = (0, 3, 15)
 AUTHOR = "Michael Axiak"
 
 __VERSION__ = VERSION
@@ -195,6 +195,12 @@ cdef class BloomFilter:
     def sync(self):
         self._assert_open()
         cbloomfilter.mbarray_Sync(self._bf.array)
+
+
+    def popcount(self):
+        self._assert_open()
+        return cbloomfilter.mbarray_Popcount(self._bf.array)
+
 
     def clear_all(self):
         self._assert_open()

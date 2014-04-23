@@ -38,6 +38,8 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
 
 void mbarray_Destroy(MBArray * array);
 
+int mbarray_Popcount(MBArray * array);
+
 int mbarray_ClearAll(MBArray * array);
 
 int mbarray_Sync(MBArray * array);

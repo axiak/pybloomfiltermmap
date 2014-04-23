@@ -5,6 +5,9 @@ install:
 	@# Support Debian package building with fall-back default
 	python setup.py install --root $${DESTDIR:-/}
 
+test:
+	python setup.py test
+
 
 clean:
 	rm -rf build/

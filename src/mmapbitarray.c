@@ -236,6 +236,22 @@ int mbarray_Sync(MBArray * array)
     return 0;
 }
 
+int popcount(DTYPE x)
+{
+    int c = 0;
+    for (; x > 0; x &= x -1) c++;
+    return c;
+}
+
+int mbarray_Popcount(MBArray * array)
+{
+    int pc = 0;
+    int offset = array->preamblesize;
+    for(int i = 0; i < array->size + offset; i++) {
+        pc += popcount(array->vector[offset + i]);
+    }
+    return pc;
+}
 
 int mbarray_ClearAll(MBArray * array)
 {
