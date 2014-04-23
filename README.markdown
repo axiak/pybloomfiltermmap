@@ -23,9 +23,9 @@ interface and a [set](https://docs.python.org/2/library/sets.html) interface. As
 
 ## Install
 
-You may or may not want to use Cython. If you have it installed, the
-setup file will build the C file from the pyx file. Otherwise, it will
-skip that step automatically and build from the packaged C file.
+If you have [Cython](http://cython.org/) installed it will generate
+the C extension from the pyx file. Otherwise it will use the
+pre-generated C code. Cython is only required for development.
 
 To install:
   
