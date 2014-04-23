@@ -27,18 +27,21 @@ If you have [Cython](http://cython.org/) installed it will generate
 the C extension from the pyx file. Otherwise it will use the
 pre-generated C code. Cython is only required for development.
 
-To install:
+To install (in the git checkout):
   
-   $ pip install cython 
-   $ pip install -e .
+    $ pip install cython 
+    $ pip install -e .
+
+Or directly from pypi:
+
+    $ pip install pybloomfiltermmap
 
 and you should be set.
 
 ## Test
 
-   $ python setup.py test
+    $ python setup.py test
 
 ## License
 
 See the LICENSE file. It's under the MIT License.
-
