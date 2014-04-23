@@ -10,7 +10,7 @@ See <http://axiak.github.com/pybloomfiltermmap/>.
 ## Overview
 
 After you install, the interface to use is a cross between a file
-interface and a ste interface. As an example:
+interface and a [set](https://docs.python.org/2/library/sets.html) interface. As an example:
 
     >>> fruit = pybloomfilter.BloomFilter(100000, 0.1, '/tmp/words.bloom')
     >>> fruit.update(('apple', 'pear', 'orange', 'apple'))
@@ -28,10 +28,15 @@ setup file will build the C file from the pyx file. Otherwise, it will
 skip that step automatically and build from the packaged C file.
 
 To install:
-
-   $ sudo python setup.py install
+  
+   $ pip install cython 
+   $ pip install -e .
 
 and you should be set.
+
+## Test
+
+   $ python setup.py test
 
 ## License
 
