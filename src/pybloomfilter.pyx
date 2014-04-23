@@ -95,12 +95,15 @@ cdef class BloomFilter:
             # than optimal number of hashes for performance reasons (especially
             # when we choose to round down when the calculated optimal number of
             # hashes is fractional)."
-            num_hashes = int(math.floor(math.log(1.0 / error_rate, 2.0)))
+
+            assert(error_rate > 0.0 and error_rate < 1.0), "error_rate allowable range (0.0,1.0) %f" % (error_rate,)
+            num_hashes = max(int(math.floor(math.log(1.0 / error_rate, 2.0))),1)
             bits_per_hash = int(math.ceil(
                     capacity * abs(math.log(error_rate)) /
                     (num_hashes * (math.log(2) ** 2))))
 
-            num_bits = num_hashes * bits_per_hash
+            # mininum bitvector of 128 bits
+            num_bits = max(num_hashes * bits_per_hash,128)
 
             #print "k = %d  m = %d  n = %d   p ~= %.8f" % (
             #    num_hashes, num_bits, capacity,
