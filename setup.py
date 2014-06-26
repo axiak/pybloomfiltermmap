@@ -28,7 +28,7 @@ try:
         sys.argv.remove('--no-cython')
         raise ImportError()
     from Cython.Distutils import build_ext
-    print "info: Building from Cython"
+    print("info: Building from Cython")
     ext_files.append("src/pybloomfilter.pyx")
     kwargs['cmdclass'] = {'build_ext': build_ext}
     #try:
@@ -40,7 +40,7 @@ except ImportError:
     if '--cython' in sys.argv:
         raise
     ext_files.append("src/pybloomfilter.c")
-    print "info: Building from C"
+    print("info: Building from C")
 
 if '--cython' in sys.argv:
     sys.argv.remove('--cython')
