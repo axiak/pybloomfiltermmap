@@ -150,7 +150,7 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
     errno = 0;
     array->vector = (DTYPE *)mmap(NULL,
                                   _mmap_size(array),
-                                  PROT_READ | PROT_WRITE,
+                                  (oflag & O_RDWR) ? (PROT_READ | PROT_WRITE) : PROT_READ,
                                   MAP_SHARED, 
                                   array->fd,
                                   0);

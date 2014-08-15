@@ -174,6 +174,45 @@ class SimpleTestCase(unittest.TestCase):
             bf.add(elem)
             self.assertEquals(elem in bf, True)
 
+    @with_test_file
+    def test_readonly(self, filename):
+        bf = pybloomfilter.BloomFilter(self.FILTER_SIZE,
+                                       self.FILTER_ERROR_RATE,
+                                       filename)
+        self._populate_filter(bf)
+        self._check_filter_contents(bf)
+        bf.sync()
+        bfro = pybloomfilter.BloomFilter.open(filename, mode="r")
+        self._check_filter_contents(bfro)
+
+    def test_readonly_cannot_write(self):
+        bfro = pybloomfilter.BloomFilter.open(self.tempfile.name, mode="r")
+        with self.assertRaises(ValueError):
+            bfro.add("test")
+        with self.assertRaises(ValueError):
+            bfro.update(["test"])
+
+    def test_readonly_cannot_do_set_operations(self):
+        bf_mem = pybloomfilter.BloomFilter(self.FILTER_SIZE,
+                                           self.FILTER_ERROR_RATE)
+
+        bfro = pybloomfilter.BloomFilter.open(self.tempfile.name, mode="r")
+        with self.assertRaises(ValueError):
+            bfro.union(bf_mem)
+
+        bfro = pybloomfilter.BloomFilter.open(self.tempfile.name, mode="r")
+        with self.assertRaises(ValueError):
+            bfro.intersection(bf_mem)
+
+        bfro = pybloomfilter.BloomFilter.open(self.tempfile.name, mode="r")
+        with self.assertRaises(ValueError):
+            bfro.__ior__(bf_mem)
+
+        bfro = pybloomfilter.BloomFilter.open(self.tempfile.name, mode="r")
+        with self.assertRaises(ValueError):
+            bfro.__iand__(bf_mem)
+
+
     def test_number_nofile(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
         bf.add(1234)
@@ -205,6 +244,10 @@ class SimpleTestCase(unittest.TestCase):
         bf = pybloomfilter.BloomFilter(100, 0.01)
         with tempfile.NamedTemporaryFile(suffix='.bloom') as f2:
             self.assertRaises(NotImplementedError, bf.copy, f2.name)
+
+    def test_inmemory_cannot_change_mode(self):
+        with self.assertRaises(ValueError):
+            bf = pybloomfilter.BloomFilter(100, 0.01, mode="r")
 
     def test_to_base64_does_not_segfault(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
