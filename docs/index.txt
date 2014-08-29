@@ -14,7 +14,7 @@ that's fast and uses mmap files for better scalability.
 Did I mention that it's fast?
 
 Here's a quick example::
-    
+
     from pybloomfilter import BloomFilter
 
     bf = BloomFilter(10000000, 0.01, 'filter.bloom')
@@ -43,6 +43,13 @@ filter with just a few pieces of fruit::
     "a4nUloa9yxkwR7XhgPPXYdhRIa77uDtnyvqaIXalGK02ufv3J36GmsnG4lquPnN9gJo1VNxqgYbt"
     "ji/EC8s1PWG5fuVizW4Jox6/3o9XxBBDDLFbwcg9v/AwjrPHtTRsX34O01mxLw37bhCTjJk0+PLK"
     "08HYd4MYYojdKmYnBfjsktEpySY2tGGZzWaIIfYDGB271Yaieaat/AaOkNKb"
+
+We may later load the filter (possibly on a different machine) using::
+
+    bf = BloomFilter.open('filter.bloom')
+
+    print 'apple' in bf
+    #outputs True
 
 Reference
 ------------
