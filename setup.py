@@ -7,7 +7,7 @@ ext_files = ["src/mmapbitarray.c",
              "src/bloomfilter.c",
              "src/md5.c",
              "src/primetester.c",
-             "src/MurmurHash3.cpp",
+             "src/MurmurHash3.c",
              ]
 
 kwargs = {}
