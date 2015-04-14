@@ -156,6 +156,7 @@ BTYPE _hash_long(uint32_t hash_seed, Key * key) {
 
 /*
 CODE TO USE SHA512..
+
 #include <openssl/evp.h>
 
 uint32_t _hash_char(uint32_t hash_seed, Key * key) {
@@ -171,15 +172,31 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
     EVP_MD_CTX_cleanup(&ctx);
     return *(uint32_t *)result_buffer;
 }
-*/
 
-/* Code for MurmurHash3 */
+CODE TO USE MurmurHash3
+
 #include "MurmurHash3.h"
 BTYPE _hash_char(uint32_t hash_seed, Key * key) {
     BTYPE hashed_pieces[2];
     MurmurHash3_x64_128((const void *)key->shash, (int)key->nhash,
                        hash_seed, &hashed_pieces);
     return hashed_pieces[0] ^ hashed_pieces[1];
+}
+
+
+CODE TO USE SuperFast
+
+#include "superfast.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+	return SuperFastHash(key->shash, key->nhash, hash_seed);
+}
+*/
+
+/* CODE TO USE xxHash */
+
+#include "xxhash.h"
+uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+    return XXH32(key->shash, key->nhash, hash_seed);
 }
 
 
