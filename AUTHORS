@@ -2,3 +2,4 @@ Michael Axiak
 Rob Stacey
 dlecocq - For superfast addition
 pbutler - Fix memory leak
+Dan Crosta - Convert MurmurHash3 to C from C++
