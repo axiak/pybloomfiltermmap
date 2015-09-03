@@ -1,6 +1,8 @@
+CC ?= gcc
+
 bloomfilter: mmapbitarray.* bloomfilter.*
-	gcc -lm -O3 mmapbitarray.c md5.c MurmurHash3.cpp bloomfilter.c -o bf
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 mmapbitarray.c md5.c MurmurHash3.cpp bloomfilter.c -o bf -lm $(LDFLAGS)
 
 mbarray: mmapbitarray.*
-	gcc -lm -O3 -DMBAQUERY mmapbitarray.c -o mbaquery
-	gcc -lm -O3 -DMBACREATE mmapbitarray.c -o mbacreate
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DMBAQUERY mmapbitarray.c -o mbaquery -lm $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DMBACREATE mmapbitarray.c -o mbacreate -lm $(LDFLAGS)
