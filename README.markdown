@@ -21,6 +21,17 @@ interface and a ste interface. As an example:
     >>> 'apple' in fruit
     True
 
+The filter is automatically persisted inside the given file; to load it back (possibly
+on a different machine):
+
+    >>> fruit = pybloomfilter.BloomFilter.open('/tmp/words.bloom')
+    >>> len(fruit)
+    0
+    >>> 'mike' in fruit
+    False
+    >>> 'apple' in fruit
+    True
+
 ## Install
 
 You may or may not want to use Cython. If you have it installed, the
