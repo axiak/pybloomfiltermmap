@@ -121,8 +121,8 @@ static inline int mbarray_Test_Set(MBArray * array, BTYPE bit)
         errno = EINVAL;
         return -1;
     }
-    DTYPE *chunk = array->vector + (size_t)(array->preamblesize + bit / (sizeof(DTYPE) << 3));
-    int byte = 1 << (bit % (sizeof(DTYPE) << 3));
+    DTYPE *chunk = &array->vector[_vector_offset(array, bit)];
+    size_t byte = _vector_byte(bit);
     int result = (*chunk & byte) != 0;
     if (!result) {
         *chunk |= byte;
