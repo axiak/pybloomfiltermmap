@@ -124,9 +124,7 @@ static inline int mbarray_Test_Set(MBArray * array, BTYPE bit)
     DTYPE *chunk = &array->vector[_vector_offset(array, bit)];
     size_t byte = _vector_byte(bit);
     int result = (*chunk & byte) != 0;
-    if (!result) {
-        *chunk |= byte;
-    }
+    *chunk |= byte;
     return result;
 }
 __attribute__((always_inline))
