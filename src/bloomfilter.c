@@ -68,7 +68,7 @@ BloomFilter *bloomfilter_Create_Mmap(size_t max_num_elem, double error_rate,
 
     /* After we create the new array object, this array may already
        have all of the bloom filter data from the file in the
-       header info. 
+       header info.
        By calling mbarray_Header, we copy that header data
        back into this BloomFilter object.
     */
@@ -145,7 +145,7 @@ BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int 
 }
 
 
-uint32_t _hash_long(uint32_t hash_seed, Key * key) {
+BTYPE _hash_long(uint32_t hash_seed, Key * key) {
     Key newKey = {
         .shash = (char *)&key->nhash,
         .nhash = sizeof(key->nhash)
@@ -175,11 +175,11 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 
 /* Code for MurmurHash3 */
 #include "MurmurHash3.h"
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
-    uint32_t hashed_pieces[4];
+BTYPE _hash_char(uint32_t hash_seed, Key * key) {
+    BTYPE hashed_pieces[2];
     MurmurHash3_x64_128((const void *)key->shash, (int)key->nhash,
                        hash_seed, &hashed_pieces);
-    return hashed_pieces[0] ^ hashed_pieces[1] ^ hashed_pieces[2] ^ hashed_pieces[3];
+    return hashed_pieces[0] ^ hashed_pieces[1];
 }
 
 

@@ -2,6 +2,7 @@
 #define __BLOOMFILTER_H 1
 
 #include <stdlib.h>
+
 #include "mmapbitarray.h"
 #define BF_CURRENT_VERSION 1
 
@@ -41,18 +42,18 @@ int bloomfilter_Update(BloomFilter * bf, char * data, int size);
 BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int perms);
 
 /* A lot of this is inlined.. */
-uint32_t _hash_char(uint32_t hash_seed, Key * key);
+BTYPE _hash_char(uint32_t hash_seed, Key * key);
 
-uint32_t _hash_long(uint32_t hash_seed, Key * key);
+BTYPE _hash_long(uint32_t hash_seed, Key * key);
 
 
 static inline int bloomfilter_Add(BloomFilter * bf, Key * key)
 {
-    uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
+    BTYPE (*hashfunc)(uint32_t, Key *) = _hash_char;
     register BTYPE mod = bf->array->bits;
     register int i;
     register int result = 1;
-    register uint32_t hash_res;
+    register BTYPE hash_res;
 
     if (key->shash == NULL)
         hashfunc = _hash_long;
@@ -77,7 +78,7 @@ __attribute__((always_inline))
 static inline int bloomfilter_Test(BloomFilter * bf, Key * key)
 {
     register BTYPE mod = bf->array->bits;
-    register uint32_t (*hashfunc)(uint32_t, Key *) = _hash_char;
+    register BTYPE (*hashfunc)(uint32_t, Key *) = _hash_char;
     register int i;
 
     if (key->shash == NULL)
