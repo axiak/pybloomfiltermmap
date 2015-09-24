@@ -115,4 +115,19 @@ static inline int mbarray_Test(MBArray * array, BTYPE bit)
 __attribute__((always_inline))
 
 
+static inline int mbarray_Test_Set(MBArray * array, BTYPE bit)
+{
+    if (bit > array->bits) {
+        errno = EINVAL;
+        return -1;
+    }
+    DTYPE *chunk = &array->vector[_vector_offset(array, bit)];
+    size_t byte = _vector_byte(bit);
+    int result = (*chunk & byte) != 0;
+    *chunk |= byte;
+    return result;
+}
+__attribute__((always_inline))
+
+
 #endif

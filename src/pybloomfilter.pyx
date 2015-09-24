@@ -214,6 +214,18 @@ cdef class BloomFilter:
             key.nhash = hash(item)
         return cbloomfilter.bloomfilter_Test(self._bf, &key) == 1
 
+    def contains_add(self, item):
+        self._assert_open()
+        cdef cbloomfilter.Key key
+        if isinstance(item, str):
+            key.shash = item
+            key.nhash = len(item)
+        else:
+            key.shash = NULL
+            key.nhash = hash(item)
+
+        return cbloomfilter.bloomfilter_Test_Add(self._bf, &key) == 1
+
     def copy_template(self, filename, perm=0755):
         self._assert_open()
         cdef BloomFilter copy = BloomFilter(0, 0, NoConstruct)

@@ -41,13 +41,14 @@ cdef extern from "bloomfilter.h":
                                       double error_rate,
                                       char * fname, long num_bits,
                                       int oflags, int perms,
-                                      int * hash_seeds, int num_hashes)
+                                      int * hash_seeds, int num_hashes) nogil
      BloomFilter * bloomfilter_Create_Malloc(long max_num_elem,
                                       double error_rate,
                                       long num_bits,
-                                      int * hash_seeds, int num_hashes)
-     void bloomfilter_Destroy(BloomFilter * bf)
-     int bloomfilter_Add(BloomFilter * bf, Key * key)
-     int bloomfilter_Test(BloomFilter * bf, Key * key)
-     int bloomfilter_Update(BloomFilter * bf, char * data, int size)
-     BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int perms)
+                                      int * hash_seeds, int num_hashes) nogil
+     void bloomfilter_Destroy(BloomFilter * bf) nogil
+     int bloomfilter_Add(BloomFilter * bf, Key * key) nogil
+     int bloomfilter_Test(BloomFilter * bf, Key * key) nogil
+     int bloomfilter_Test_Add(BloomFilter * bf, Key * key) nogil
+     int bloomfilter_Update(BloomFilter * bf, char * data, int size) nogil
+     BloomFilter * bloomfilter_Copy_Template(BloomFilter * src, char * filename, int perms) nogil
