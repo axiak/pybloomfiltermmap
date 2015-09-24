@@ -69,7 +69,7 @@ char * mbarray_CharData(MBArray * array);
 
 static inline size_t _vector_offset(MBArray * array, BTYPE bit)
 {
-    return array->preamblesize + bit / (sizeof(DTYPE) << 3);
+    return (size_t)(array->preamblesize + bit / (sizeof(DTYPE) << 3));
 }
 __attribute__((always_inline))
 
