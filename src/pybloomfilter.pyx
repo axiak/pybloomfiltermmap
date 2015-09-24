@@ -41,29 +41,37 @@ cdef class BloomFilter:
     cdef cbloomfilter.BloomFilter * _bf
     cdef int _closed
     cdef int _in_memory
+    cdef int _mode
     cdef public ReadFile
 
-    def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
+    def __cinit__(self, capacity, error_rate, filename=None, perm=0755, mode=None):
         cdef char * seeds
         cdef long long num_bits
         self._closed = 0
         self._in_memory = 0
         self.ReadFile = self.__class__.ReadFile
-        mode = "rw+"
         if filename is NoConstruct:
             return
 
         if capacity is self.ReadFile:
-            mode = "rw"
+            if mode is None:
+                mode = "rw"
+            if '+' in mode:
+                raise OSError("Cannot open bloomfilter file in create mode")
             capacity = 0
             if not os.path.exists(filename):
                 raise OSError("File %s not found" % filename)
 
-            if not os.access(filename, os.O_RDWR):
+            if 'w' in mode and not os.access(filename, os.O_RDWR):
                 raise OSError("Insufficient permissions for file %s" % filename)
 
-        mode = construct_mode(mode)
+        if mode is None:
+            mode = "rw+"
 
+        if filename is None and mode != "rw+":
+            raise ValueError("In-Memory bloomfilter must have mode 'rw+'")
+
+        self._mode = mode = construct_mode(mode)
 
         if not mode & os.O_CREAT:
             if os.path.exists(filename):
@@ -197,6 +205,7 @@ cdef class BloomFilter:
 
     def sync(self):
         self._assert_open()
+        self._assert_rw()
         cbloomfilter.mbarray_Sync(self._bf.array)
 
     def clear_all(self):
@@ -232,6 +241,7 @@ cdef class BloomFilter:
 
     def add(self, item):
         self._assert_open()
+        self._assert_rw()
         cdef cbloomfilter.Key key
         if isinstance(item, str):
             key.shash = item
@@ -247,6 +257,7 @@ cdef class BloomFilter:
 
     def update(self, iterable):
         self._assert_open()
+        self._assert_rw()
         for item in iterable:
             self.add(item)
 
@@ -266,6 +277,7 @@ cdef class BloomFilter:
 
     def __ior__(self, BloomFilter other):
         self._assert_open()
+        self._assert_rw()
         self._assert_comparable(other)
         cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
         self._bf.count_correct = 0
@@ -273,6 +285,7 @@ cdef class BloomFilter:
 
     def union(self, BloomFilter other):
         self._assert_open()
+        self._assert_rw()
         other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_Or(self._bf.array, other._bf.array)
@@ -281,6 +294,7 @@ cdef class BloomFilter:
 
     def __iand__(self, BloomFilter other):
         self._assert_open()
+        self._assert_rw()
         other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
@@ -289,6 +303,7 @@ cdef class BloomFilter:
 
     def intersection(self, BloomFilter other):
         self._assert_open()
+        self._assert_rw()
         other._assert_open()
         self._assert_comparable(other)
         cbloomfilter.mbarray_And(self._bf.array, other._bf.array)
@@ -298,6 +313,10 @@ cdef class BloomFilter:
     def _assert_open(self):
         if self._closed != 0:
             raise ValueError("I/O operation on closed file")
+
+    def _assert_rw(self):
+        if not self._mode & os.O_RDWR:
+            raise ValueError("Write operation on read-only file")
 
     def _assert_comparable(self, BloomFilter other):
         error = ValueError("The two %s objects are not the same type (hint, "
@@ -324,5 +343,5 @@ cdef class BloomFilter:
         return cls.open(filename)
 
     @classmethod
-    def open(cls, filename):
-        return cls(cls.ReadFile, 0.1, filename, 0)
+    def open(cls, filename, mode="rw"):
+        return cls(cls.ReadFile, 0.1, filename, 0, mode=mode)
