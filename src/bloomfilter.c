@@ -159,7 +159,7 @@ CODE TO USE SHA512..
 
 #include <openssl/evp.h>
 
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+BTYPE _hash_char(uint32_t hash_seed, Key * key) {
     EVP_MD_CTX ctx;
     unsigned char result_buffer[64];
 
@@ -187,7 +187,7 @@ BTYPE _hash_char(uint32_t hash_seed, Key * key) {
 CODE TO USE SuperFast
 
 #include "superfast.h"
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+BYPTE _hash_char(uint32_t hash_seed, Key * key) {
 	return SuperFastHash(key->shash, key->nhash, hash_seed);
 }
 */
@@ -195,7 +195,7 @@ uint32_t _hash_char(uint32_t hash_seed, Key * key) {
 /* CODE TO USE xxHash */
 
 #include "xxhash.h"
-uint32_t _hash_char(uint32_t hash_seed, Key * key) {
+BTYPE _hash_char(uint32_t hash_seed, Key * key) {
     return XXH32(key->shash, key->nhash, hash_seed);
 }
 
