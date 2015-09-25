@@ -76,12 +76,13 @@ cdef class BloomFilter:
         self._in_memory = 0
         self.ReadFile = self.__class__.ReadFile
 
-        oflags = construct_mode(mode)
-
         if filename is NoConstruct:
             return
 
         if capacity is self.ReadFile:
+            # Cannot create if we read
+            mode = mode.replace('+','')
+            
             _capacity = 0
             if not os.path.exists(filename):
                 raise OSError("File %s not found" % filename)
@@ -90,6 +91,8 @@ cdef class BloomFilter:
                 raise OSError("Insufficient permissions for file %s mode %r" % (filename, mode))
         else:
             _capacity = capacity
+
+        oflags = construct_mode(mode)
 
         if not oflags & os.O_CREAT: #if the file is already created
             if os.path.exists(filename):
