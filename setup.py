@@ -47,7 +47,7 @@ if '--cython' in sys.argv:
 
 ext_modules = [Extension("pybloomfilter",
                          ext_files,
-                         libraries=['crypto'])]
+                         libraries=[])]
 
 requirements = []
 
