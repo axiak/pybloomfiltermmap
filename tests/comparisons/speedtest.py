@@ -31,9 +31,9 @@ def test_errors(bf, correct_wordlist, test_wordlist):
         else:
             if word in correct_wordlist:
                 errors[1] += 1
-    print '%0.2f%% positive %0.2f%% negative' % (
+    print('%0.2f%% positive %0.2f%% negative' % (
         errors[0] / float(len(correct_wordlist)) * 100,
-        errors[1] / float(len(correct_wordlist)) * 100)
+        errors[1] / float(len(correct_wordlist)) * 100))
 
 def create_word_list(filename):
     f = open(filename, 'r')
@@ -70,18 +70,18 @@ def run_test():
         start = time.time()
         if NUM:
             t = timeit.Timer(lambda : get_and_add_words(creator, dict_wordlist))
-            print "%s took %0.5f s/run" % (
+            print("%s took %0.5f s/run" % (
                 creator,
-                t.timeit(NUM) / float(NUM))
+                t.timeit(NUM) / float(NUM)))
         bf = get_and_add_words(creator, dict_wordlist)
 
         if NUM:
             t = timeit.Timer(lambda : check_words(bf, test_wordlist))
-            print "%s took %0.5f s/run" % (
+            print("%s took %0.5f s/run" % (
                 creator,
-                t.timeit(NUM) / float(NUM))
+                t.timeit(NUM) / float(NUM)))
 
-        raw_input()
+        input()
 
         test_errors(bf, dict_wordlist, test_wordlist)
 
