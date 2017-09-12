@@ -38,25 +38,25 @@ class TestAccuracyMixin(object):
             n = 0
             chunk_count = 10
             chunk_size = int(math.ceil(float(bf.capacity) / chunk_count))
-            print 'error_rate = %.4f' % error_rate
-            print '    %6s %9s %s' % ('n', 'false_pos',
-                                      'estimated error_rate')
+            print('error_rate = %.4f' % error_rate)
+            print('    %6s %9s %s' % ('n', 'false_pos',
+                                      'estimated error_rate'))
             for i in range(chunk_count):
                 chunk = items_in_filter_list[i*chunk_size:(i+1)*chunk_size]
                 n += len(chunk)
                 bf.update(chunk)
                 pos_test_count = int(5 * 1.0 / error_rate)
-                false_pos = len(filter(bf.__contains__,
+                false_pos = len(list(filter(bf.__contains__,
                                        self._gen_random_items(
-                                           pos_test_count, items_in_filter)))
+                                           pos_test_count, items_in_filter))))
                 est_error_rate = float(false_pos) / pos_test_count
-                print '    %6d %9d %.8f %s' % (
+                print('    %6d %9d %.8f %s' % (
                     n, false_pos, est_error_rate,
-                    '******' if est_error_rate > error_rate else '')
+                    '******' if est_error_rate > error_rate else ''))
 
     def test_accuracy(self):
-        print '\n%14s\t%14s\t%17s' % ('pos_test_count', 'false_pos_rate',
-                                      'error_rate_target')
+        print('\n%14s\t%14s\t%17s' % ('pos_test_count', 'false_pos_rate',
+                                      'error_rate_target'))
         # we'll check 10% to 0.01%
         for error_rate in (0.1, 0.01, 0.001, 0.0001):
             bf = self._bf(error_rate)
@@ -68,11 +68,11 @@ class TestAccuracyMixin(object):
             self.assertEqual(bf.capacity, len(items_in_filter))
 
             false_neg = len(items_in_filter) - \
-                len(filter(bf.__contains__, items_in_filter))
+                len(list(filter(bf.__contains__, items_in_filter)))
 
             pos_test_count = int(10 * (1.0 / error_rate))
-            false_pos = len(filter(bf.__contains__, self._gen_random_items(
-                pos_test_count, items_in_filter)))
+            false_pos = len(list(filter(bf.__contains__, self._gen_random_items(
+                pos_test_count, items_in_filter))))
             false_pos = 0
             for test in self._gen_random_items(pos_test_count,
                                                items_in_filter):
@@ -83,8 +83,8 @@ class TestAccuracyMixin(object):
             false_neg_rate = float(false_neg) / len(items_in_filter)
             error_rate_target = error_rate * 2  # cut it some slack
 
-            print '%14d\t%14f\t%17f' % (pos_test_count, false_pos_rate,
-                                        error_rate_target)
+            print('%14d\t%14f\t%17f' % (pos_test_count, false_pos_rate,
+                                        error_rate_target))
             self.assertTrue(
                 false_pos_rate <= error_rate_target,
                 "false_pos: %r / %r = %r > %r" % (
@@ -102,7 +102,7 @@ class StringAccuracyMallocTestCase(unittest.TestCase, TestAccuracyMixin):
 
     def _random_item(self):
         return ''.join(random.choice(self.CHARS)
-                       for _ in xrange(self.STR_LEN))
+                       for _ in range(self.STR_LEN))
 
     def _bf(self, error_rate):
         return pybloomfilter.BloomFilter(self.FILTER_SIZE, error_rate)
@@ -121,7 +121,7 @@ class StringAccuracyMmapTestCase(unittest.TestCase, TestAccuracyMixin):
 
     def _random_item(self):
         return ''.join(random.choice(self.CHARS)
-                       for _ in xrange(self.STR_LEN))
+                       for _ in range(self.STR_LEN))
 
     def _bf(self, error_rate):
         return pybloomfilter.BloomFilter(self.FILTER_SIZE, error_rate,

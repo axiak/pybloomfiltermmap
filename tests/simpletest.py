@@ -41,7 +41,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def _random_str(self, length=16):
         chars = string.lowercase + string.uppercase
-        return ''.join(choice(chars) for _ in xrange(length))
+        return ''.join(choice(chars) for _ in range(length))
 
     def _random_set_of_stuff(self, c):
         """
@@ -56,9 +56,9 @@ class SimpleTestCase(unittest.TestCase):
             [(randint(-200, 200), self._random_str()) for _ in range(c)] +
             [float(randint(10, 100)) / randint(10, 100)
              for _ in range(c)] +
-            [long(randint(50000, 1000000)) for _ in range(c)] +
+            [int(randint(50000, 1000000)) for _ in range(c)] +
             [object() for _ in range(c)] +
-            [unicode(self._random_str) for _ in range(c)])
+            [str(self._random_str) for _ in range(c)])
 
     def _populate_filter(self, bf, use_update=False):
         """
@@ -84,7 +84,7 @@ class SimpleTestCase(unittest.TestCase):
         # We might say something is in the filter which isn't; we're only
         # trying to test correctness, here, so we are very lenient.  If the
         # false positive rate is within 2 orders of magnitude, we're okay.
-        false_pos = len(filter(bf.__contains__, self._not_in_filter))
+        false_pos = len(list(filter(bf.__contains__, self._not_in_filter)))
         error_rate = float(false_pos) / len(self._not_in_filter)
         self.assertTrue(error_rate < 100 * self.FILTER_ERROR_RATE,
                         '%r / %r = %r > %r' % (false_pos,
@@ -101,9 +101,9 @@ class SimpleTestCase(unittest.TestCase):
                 self.bf.capacity, self.bf.error_rate, self.bf.num_hashes),
             repr(self.bf))
         self.assertEqual(
-            u'<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
+            '<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
                 self.bf.capacity, self.bf.error_rate, self.bf.num_hashes),
-            unicode(self.bf))
+            str(self.bf))
         self.assertEqual(
             '<BloomFilter capacity: %d, error: %0.3f, num_hashes: %d>' % (
                 self.bf.capacity, self.bf.error_rate, self.bf.num_hashes),
@@ -139,7 +139,7 @@ class SimpleTestCase(unittest.TestCase):
 
     def assertBfPermissions(self, bf, perms):
         oct_mode = oct(os.stat(bf.name).st_mode)
-        self.assert_(oct_mode.endswith(perms),
+        self.assertTrue(oct_mode.endswith(perms),
                      'unexpected perms %s' % oct_mode)
 
     @with_test_file
@@ -156,7 +156,7 @@ class SimpleTestCase(unittest.TestCase):
         try:
             os.unlink(filename)
             bf = pybloomfilter.BloomFilter.from_base64(filename, b64,
-                                                       perm=0775)
+                                                       perm=0o775)
             self.assertBfPermissions(bf, '0775')
             self._check_filter_contents(bf)
             self.assertPropertiesPreserved(self.bf, bf)
@@ -170,32 +170,32 @@ class SimpleTestCase(unittest.TestCase):
     @with_test_file
     def test_others(self, filename):
         bf = pybloomfilter.BloomFilter(100, 0.01, filename)
-        for elem in (1.2, 2343L, (1, 2), object(), u'\u2131\u3184'):
+        for elem in (1.2, 2343, (1, 2), object(), '\u2131\u3184'):
             bf.add(elem)
-            self.assertEquals(elem in bf, True)
+            self.assertEqual(elem in bf, True)
 
     def test_number_nofile(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
         bf.add(1234)
-        self.assertEquals(1234 in bf, True)
+        self.assertEqual(1234 in bf, True)
 
     def test_string_nofile(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
         bf.add("test")
-        self.assertEquals("test" in bf, True)
+        self.assertEqual("test" in bf, True)
 
     def test_others_nofile(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
-        for elem in (1.2, 2343L, (1, 2), object(), u'\u2131\u3184'):
+        for elem in (1.2, 2343, (1, 2), object(), '\u2131\u3184'):
             bf.add(elem)
-            self.assertEquals(elem in bf, True)
+            self.assertEqual(elem in bf, True)
 
     #@unittest.skip("unfortunately large files cannot be tested on Travis")
     @with_test_file
     def _test_large_file(self, filename):
         bf = pybloomfilter.BloomFilter(400000000, 0.01, filename)
         bf.add(1234)
-        self.assertEquals(1234 in bf, True)
+        self.assertEqual(1234 in bf, True)
 
     def test_name_does_not_segfault(self):
         bf = pybloomfilter.BloomFilter(100, 0.01)
@@ -211,12 +211,12 @@ class SimpleTestCase(unittest.TestCase):
         self.assertRaises(NotImplementedError, bf.to_base64)
 
     def test_ReadFile_is_public(self):
-        self.assertEquals(
+        self.assertEqual(
             isinstance(pybloomfilter.BloomFilter.ReadFile, object), True)
         bf = pybloomfilter.BloomFilter(100, 0.01)
         bf2 = pybloomfilter.BloomFilter(100, 0.01)
-        self.assertEquals(bf.ReadFile, bf2.ReadFile)
-        self.assertEquals(pybloomfilter.BloomFilter.ReadFile,
+        self.assertEqual(bf.ReadFile, bf2.ReadFile)
+        self.assertEqual(pybloomfilter.BloomFilter.ReadFile,
                           bf.ReadFile)
 
 

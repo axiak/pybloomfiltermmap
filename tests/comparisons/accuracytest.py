@@ -51,12 +51,12 @@ def run_test(bf, source_file, test_file, correct_overlap, num_test_words, error_
 
     actual_error_rate = float(positive_matches - correct_overlap) / correct_overlap
 
-    print "Specified: %f; Measured: %f; num_hashes: %d, num_bits: %d" % (
+    print("Specified: %f; Measured: %f; num_hashes: %d, num_bits: %d" % (
         error_rate,
         actual_error_rate,
         getattr(bf, 'num_hashes', None) or getattr(bf, 'num_slices'),
         bf.num_bits,
-        )
+        ))
 
 
 
