@@ -148,9 +148,13 @@ MBArray * mbarray_Create_Mmap(BTYPE num_bits, const char * file, const char * he
     }
 
     errno = 0;
+
+    int mmap_flags = PROT_READ;
+    mmap_flags |= (oflag & O_RDWR) ? PROT_WRITE : 0; //add PROT_WRITE if we have write permissions
+    
     array->vector = (DTYPE *)mmap(NULL,
                                   _mmap_size(array),
-                                  PROT_READ | PROT_WRITE,
+                                  mmap_flags,
                                   MAP_SHARED, 
                                   array->fd,
                                   0);

@@ -28,7 +28,25 @@ cdef construct_mode(mode):
         result |= os.O_CREAT
     return result
 
+cdef construct_access(mode):
+    result = os.F_OK
+    if 'w' in mode:
+        result |= os.W_OK
+    if 'r' in mode:
+        result |= os.R_OK
+    return result
+
 cdef NoConstruct = object()
+cdef ReadFile = object()
+
+def bf_from_base64(filename, string, perm=0755):
+    bfile = open(filename, 'w+', perm)
+    bfile.write(zlib.decompress(zlib.decompress(string.decode('base64')).decode('base64')))
+    bfile.close()
+    return BloomFilter.open(filename)
+
+def bf_from_file(filename, mode='r'):
+    return BloomFilter(ReadFile, 0.1, filename, mode, 0)
 
 class IndeterminateCountError(ValueError):
     pass
@@ -43,40 +61,50 @@ cdef class BloomFilter:
     cdef int _in_memory
     cdef public ReadFile
 
-    def __cinit__(self, capacity, error_rate, filename=None, perm=0755):
+    def __cinit__(self, capacity, double error_rate, filename=None, mode='rw+', int perm=0755 ):
+
+        """
+        mode: chmod type access to file, default rw+ for creating the bloom filter
+        perm, permissions for when the file is created, not opened. 0755 means Read, Write, Execute access for owner,
+        read, execute for group owner and others.
+        """
         cdef char * seeds
         cdef long long num_bits
+        cdef int oflags
+        cdef int _capacity
         self._closed = 0
         self._in_memory = 0
         self.ReadFile = self.__class__.ReadFile
-        mode = "rw+"
+
         if filename is NoConstruct:
             return
 
         if capacity is self.ReadFile:
-            mode = "rw"
-            capacity = 0
+            # Cannot create if we read
+            mode = mode.replace('+','')
+            
+            _capacity = 0
             if not os.path.exists(filename):
                 raise OSError("File %s not found" % filename)
 
-            if not os.access(filename, os.O_RDWR):
-                raise OSError("Insufficient permissions for file %s" % filename)
+            if not os.access(filename, construct_access(mode)):
+                raise OSError("Insufficient permissions for file %s mode %r" % (filename, mode))
+        else:
+            _capacity = capacity
 
-        mode = construct_mode(mode)
+        oflags = construct_mode(mode)
 
-
-        if not mode & os.O_CREAT:
+        if not oflags & os.O_CREAT: #if the file is already created
             if os.path.exists(filename):
-                self._bf = cbloomfilter.bloomfilter_Create_Mmap(capacity,
+                self._bf = cbloomfilter.bloomfilter_Create_Mmap(_capacity,
                                                            error_rate,
                                                            filename,
                                                            0,
-                                                           mode,
+                                                           oflags,
                                                            perm,
                                                            NULL, 0)
                 if self._bf is NULL:
-                    raise ValueError("Invalid %s file: %s" %
-                                     (self.__class__.__name__, filename))
+                    raise ValueError("Invalid %s file: %s" % (self.__class__.__name__, filename))
             else:
                 raise OSError(eno.ENOENT, '%s: %s' % (os.strerror(eno.ENOENT),
                                                       filename))
@@ -99,7 +127,7 @@ cdef class BloomFilter:
             assert(error_rate > 0.0 and error_rate < 1.0), "error_rate allowable range (0.0,1.0) %f" % (error_rate,)
             num_hashes = max(int(math.floor(math.log(1.0 / error_rate, 2.0))),1)
             bits_per_hash = int(math.ceil(
-                    capacity * abs(math.log(error_rate)) /
+                    _capacity * abs(math.log(error_rate)) /
                     (num_hashes * (math.log(2) ** 2))))
 
             # mininum bitvector of 128 bits
@@ -118,17 +146,17 @@ cdef class BloomFilter:
             # If a filename is provided, we should make a mmap-file
             # backed bloom filter. Otherwise, it will be malloc
             if filename:
-                self._bf = cbloomfilter.bloomfilter_Create_Mmap(capacity,
+                self._bf = cbloomfilter.bloomfilter_Create_Mmap(_capacity,
                                                        error_rate,
                                                        filename,
                                                        num_bits,
-                                                       mode,
+                                                       oflags,
                                                        perm,
                                                        <int *>seeds,
                                                        num_hashes)
             else:
                 self._in_memory = 1
-                self._bf = cbloomfilter.bloomfilter_Create_Malloc(capacity,
+                self._bf = cbloomfilter.bloomfilter_Create_Malloc(_capacity,
                                                        error_rate,
                                                        num_bits,
                                                        <int *>seeds,
@@ -179,7 +207,10 @@ cdef class BloomFilter:
                                           'in-memory %s' %
                                           self.__class__.__name__)
 
-            return self._bf.array.filename
+            if self._bf.array.filename is not NULL:
+                return self._bf.array.filename
+            else:
+                return None
 
     def fileno(self):
         self._assert_open()
@@ -206,7 +237,11 @@ cdef class BloomFilter:
     def __contains__(self, item):
         self._assert_open()
         cdef cbloomfilter.Key key
-        if isinstance(item, str):
+        if isinstance(item, bytes):
+            key.shash = item
+            key.nhash = len(item)
+        elif isinstance(item, unicode):
+            item = item.encode("utf8")
             key.shash = item
             key.nhash = len(item)
         else:
@@ -233,7 +268,11 @@ cdef class BloomFilter:
     def add(self, item):
         self._assert_open()
         cdef cbloomfilter.Key key
-        if isinstance(item, str):
+        if isinstance(item, bytes):
+            key.shash = item
+            key.nhash = len(item)
+        elif isinstance(item, unicode):
+            item = item.encode("utf8")
             key.shash = item
             key.nhash = len(item)
         else:
@@ -324,5 +363,5 @@ cdef class BloomFilter:
         return cls.open(filename)
 
     @classmethod
-    def open(cls, filename):
-        return cls(cls.ReadFile, 0.1, filename, 0)
+    def open(cls, filename, mode='r'):
+        return cls(cls.ReadFile, 0.1, filename, mode, 0)
